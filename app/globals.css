@@ -24,51 +24,43 @@
     --input: 214 32% 91%;
     --ring: 221 83% 53%;
     --radius: 0.5rem;
-    
-    /* PulseDesk brand tokens */
-    --pulse-blue: 221 83% 53%;
-    --pulse-slate: 215 25% 27%;
-    --pulse-surface: 220 33% 98%;
-  }
-
-  .dark {
-    --background: 222 47% 6%;
-    --foreground: 210 40% 98%;
-    --card: 222 47% 9%;
-    --card-foreground: 210 40% 98%;
-    --primary: 221 83% 60%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
   }
 }
 
 @layer base {
-  * { @apply border-border; }
-  body { @apply bg-background text-foreground antialiased; }
+  * {
+    border-color: hsl(var(--border));
+  }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 }
 
-/* Magazine content typography */
 .prose-magazine {
-  @apply text-base leading-relaxed text-slate-700;
+  font-size: 1rem;
+  line-height: 1.625;
+  color: rgb(51 65 85);
 }
-.prose-magazine p { @apply mb-4; }
-.prose-magazine strong { @apply font-semibold text-slate-900; }
+.prose-magazine p {
+  margin-bottom: 1rem;
+}
+.prose-magazine strong {
+  font-weight: 600;
+  color: rgb(15 23 42);
+}
 
-/* Vertical color chips */
-.chip-blue   { @apply bg-blue-100 text-blue-700; }
-.chip-green  { @apply bg-green-100 text-green-700; }
-.chip-purple { @apply bg-purple-100 text-purple-700; }
-.chip-cyan   { @apply bg-cyan-100 text-cyan-700; }
-.chip-red    { @apply bg-red-100 text-red-700; }
-.chip-gray   { @apply bg-gray-100 text-gray-700; }
-.chip-orange { @apply bg-orange-100 text-orange-700; }
-.chip-yellow { @apply bg-yellow-100 text-yellow-700; }
-.chip-amber  { @apply bg-amber-100 text-amber-700; }
-.chip-indigo { @apply bg-indigo-100 text-indigo-700; }
-.chip-lime   { @apply bg-lime-100 text-lime-700; }
-.chip-emerald{ @apply bg-emerald-100 text-emerald-700; }
+.chip-blue   { background-color: rgb(219 234 254); color: rgb(29 78 216); }
+.chip-green  { background-color: rgb(220 252 231); color: rgb(21 128 61); }
+.chip-purple { background-color: rgb(243 232 255); color: rgb(126 34 206); }
+.chip-cyan   { background-color: rgb(207 250 254); color: rgb(14 116 144); }
+.chip-red    { background-color: rgb(254 226 226); color: rgb(185 28 28); }
+.chip-gray   { background-color: rgb(243 244 246); color: rgb(55 65 81); }
+.chip-orange { background-color: rgb(255 237 213); color: rgb(194 65 12); }
+.chip-yellow { background-color: rgb(254 249 195); color: rgb(161 98 7); }
+.chip-amber  { background-color: rgb(254 243 199); color: rgb(180 83 9); }
+.chip-indigo { background-color: rgb(224 231 255); color: rgb(67 56 202); }
+.chip-lime   { background-color: rgb(236 252 203); color: rgb(77 124 15); }
+.chip-emerald{ background-color: rgb(209 250 229); color: rgb(6 95 70); }
