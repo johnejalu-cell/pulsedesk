@@ -6,11 +6,12 @@ import GenerateButton from '@/components/content/GenerateButton';
 import { formatDate } from '@/lib/utils';
 import type { FeedItem } from '@/types';
 
-interface Props {
-  params: { slug: string };
-}
-
-export default async function VerticalPage({ params }: Props) {
+export default async function VerticalPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -20,26 +21,24 @@ export default async function VerticalPage({ params }: Props) {
     .eq('id', user!.id)
     .single();
 
-  // Check access
-  if (!profile?.professions?.includes(params.slug)) {
+  if (!profile?.professions?.includes(slug)) {
     notFound();
   }
 
   const { data: vertical } = await supabase
     .from('verticals')
     .select('*')
-    .eq('slug', params.slug)
+    .eq('slug', slug)
     .eq('is_active', true)
     .single();
 
   if (!vertical) notFound();
 
-  // Get latest valid (non-expired) issue
   const { data: latestItem } = await supabase
     .from('feed_items')
     .select('*')
     .eq('user_id', user!.id)
-    .eq('vertical_slug', params.slug)
+    .eq('vertical_slug', slug)
     .order('generated_at', { ascending: false })
     .limit(1)
     .maybeSingle() as { data: FeedItem | null };
@@ -48,7 +47,6 @@ export default async function VerticalPage({ params }: Props) {
     ? new Date(latestItem.expires_at) < new Date()
     : true;
 
-  // Count today's generations for rate limiting display
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
   const { count: todayGenerations } = await supabase
@@ -69,7 +67,6 @@ export default async function VerticalPage({ params }: Props) {
 
   return (
     <div className="p-6 sm:p-8 max-w-4xl">
-      {/* Header */}
       <div className="flex items-start justify-between mb-8 gap-4">
         <div>
           <div className={`inline-block text-xs font-semibold px-3 py-1 rounded-full mb-3 chip-${vertical.color || 'blue'}`}>
@@ -88,7 +85,7 @@ export default async function VerticalPage({ params }: Props) {
           )}
         </div>
         <GenerateButton
-          verticalSlug={params.slug}
+          verticalSlug={slug}
           verticalName={vertical.name}
           generationsLeft={generationsLeft}
           maxGenerations={maxGenerations}
@@ -96,7 +93,6 @@ export default async function VerticalPage({ params }: Props) {
         />
       </div>
 
-      {/* Content */}
       {latestItem && !isExpired ? (
         <IssueViewer issue={latestItem.content} />
       ) : (
