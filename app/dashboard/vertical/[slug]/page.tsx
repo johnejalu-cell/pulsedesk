@@ -9,9 +9,9 @@ import type { FeedItem } from '@/types';
 export default async function VerticalPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 }) {
-  const { slug } = await params;
+  const { slug } = params;
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -107,3 +107,4 @@ export default async function VerticalPage({
     </div>
   );
 }
+
