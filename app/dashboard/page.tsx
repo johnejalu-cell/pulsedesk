@@ -26,12 +26,20 @@ export default function DashboardPage() {
       
       setProfile(profile);
 
-      if (profile?.professions?.length > 0) {
-        const { data: verts } = await supabase
+      const profs = Array.isArray(profile?.professions) 
+        ? profile.professions 
+        : (typeof profile?.professions === 'string' ? JSON.parse(profile.professions) : []);
+
+      console.log('professions:', profs);
+
+      if (profs.length > 0) {
+        const { data: verts, error } = await supabase
           .from('verticals')
           .select('*')
-          .in('slug', profile.professions)
+          .in('slug', profs)
           .eq('is_active', true);
+        
+        console.log('verticals result:', verts, 'error:', error);
         setVerticals(verts || []);
       }
       
@@ -73,9 +81,10 @@ export default function DashboardPage() {
 
         {verticals.length === 0 && (
           <div className="text-center py-16 text-slate-400">
-            <p>No verticals selected.</p>
+            <p>Professions: {JSON.stringify(profile?.professions)}</p>
+            <p className="mt-2">No verticals found matching your professions.</p>
             <Link href="/dashboard/settings" className="text-blue-600 hover:underline text-sm mt-1 inline-block">
-              Add verticals in settings
+              Update in settings
             </Link>
           </div>
         )}
