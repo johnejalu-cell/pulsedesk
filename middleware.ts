@@ -1,4 +1,3 @@
-// middleware.ts
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
@@ -29,9 +28,12 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   const { pathname } = request.nextUrl;
 
-  // Public routes that don't require auth
-  const publicPaths = ['/', '/login', '/signup', '/api/stripe/webhook'];
-  const isPublic = publicPaths.some(p => pathname === p || pathname.startsWith('/api/stripe/webhook'));
+  const isPublic =
+    pathname === '/' ||
+    pathname === '/login' ||
+    pathname === '/signup' ||
+    pathname.startsWith('/auth/') ||
+    pathname.startsWith('/api/stripe/webhook');
 
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();
@@ -39,26 +41,10 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Redirect logged-in users away from auth pages
   if (user && (pathname === '/login' || pathname === '/signup')) {
     const url = request.nextUrl.clone();
     url.pathname = '/dashboard';
     return NextResponse.redirect(url);
-  }
-
-  // Admin route guard
-  if (pathname.startsWith('/admin') && user) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-
-    if (profile?.role !== 'admin') {
-      const url = request.nextUrl.clone();
-      url.pathname = '/dashboard';
-      return NextResponse.redirect(url);
-    }
   }
 
   return supabaseResponse;
