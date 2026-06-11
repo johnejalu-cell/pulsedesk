@@ -56,7 +56,7 @@ export default function DashboardPage() {
   );
 
   return (
-    <div className="p-8 max-w-4xl">
+    <div className="p-4 sm:p-8 sm:max-w-4xl">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-slate-900">
           Welcome, {profile?.full_name?.split(' ')[0] || 'there'} 👋
