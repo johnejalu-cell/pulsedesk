@@ -25,7 +25,11 @@ export async function generateMagazineIssue(
   const rawText = message.content[0].type === 'text' ? message.content[0].text : '';
 
   // Strip any accidental markdown fences
-  const cleaned = rawText.replace(/^```json\n?/, '').replace(/\n?```$/, '').trim();
+  const cleaned = rawText
+  .replace(/^```json\s*/i, '')
+  .replace(/^```\s*/i, '')
+  .replace(/\s*```$/i, '')
+  .trim();
 
   let parsedContent: MagazineIssue['hero'] | null = null;
   try {
