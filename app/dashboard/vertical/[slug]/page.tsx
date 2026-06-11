@@ -1,110 +1,268 @@
-// app/dashboard/vertical/[slug]/page.tsx
-import { createClient } from '@/lib/supabase/server';
-import { notFound } from 'next/navigation';
-import IssueViewer from '@/components/content/IssueViewer';
-import GenerateButton from '@/components/content/GenerateButton';
-import { formatDate } from '@/lib/utils';
-import type { FeedItem } from '@/types';
+'use client';
+import { useEffect, useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
 
-export default async function VerticalPage({
-  params,
-}: {
-  params: { slug: string };
-}) {
+export default function VerticalPage({ params }: { params: { slug: string } }) {
   const { slug } = params;
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const [vertical, setVertical] = useState<any>(null);
+  const [profile, setProfile] = useState<any>(null);
+  const [issue, setIssue] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
+  const [error, setError] = useState('');
+  const [activeSection, setActiveSection] = useState('industry_news');
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('country, country_name, professions')
-    .eq('id', user!.id)
-    .single();
+  useEffect(() => {
+    const supabase = createClient();
+    async function load() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { window.location.href = '/login'; return; }
 
-  if (!profile?.professions?.includes(slug)) {
-    notFound();
+      const [{ data: prof }, { data: vert }] = await Promise.all([
+        supabase.from('profiles').select('*').eq('id', user.id).single(),
+        supabase.from('verticals').select('*').eq('slug', slug).single(),
+      ]);
+
+      setProfile(prof);
+      setVertical(vert);
+
+      const { data: latest } = await supabase
+        .from('feed_items')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('vertical_slug', slug)
+        .order('generated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (latest) setIssue(latest.content);
+      setLoading(false);
+    }
+    load();
+  }, [slug]);
+
+  async function generate() {
+    setGenerating(true);
+    setError('');
+    try {
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ verticalSlug: slug }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Generation failed');
+      setIssue(data.issue);
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setGenerating(false);
+    }
   }
 
-  const { data: vertical } = await supabase
-    .from('verticals')
-    .select('*')
-    .eq('slug', slug)
-    .eq('is_active', true)
-    .single();
-
-  if (!vertical) notFound();
-
-  const { data: latestItem } = await supabase
-    .from('feed_items')
-    .select('*')
-    .eq('user_id', user!.id)
-    .eq('vertical_slug', slug)
-    .order('generated_at', { ascending: false })
-    .limit(1)
-    .maybeSingle() as { data: FeedItem | null };
-
-  const isExpired = latestItem?.expires_at
-    ? new Date(latestItem.expires_at) < new Date()
-    : true;
-
-  const startOfDay = new Date();
-  startOfDay.setHours(0, 0, 0, 0);
-  const { count: todayGenerations } = await supabase
-    .from('generation_log')
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', user!.id)
-    .gte('created_at', startOfDay.toISOString());
-
-  const { data: subscription } = await supabase
-    .from('subscriptions')
-    .select('tier')
-    .eq('user_id', user!.id)
-    .maybeSingle();
-
-  const tier = subscription?.tier || 'starter';
-  const maxGenerations = tier === 'enterprise' ? 10 : tier === 'pro' ? 3 : 1;
-  const generationsLeft = Math.max(0, maxGenerations - (todayGenerations || 0));
+  if (loading) return <div className="p-8 text-slate-400">Loading...</div>;
 
   return (
-    <div className="p-6 sm:p-8 max-w-4xl">
+    <div className="p-6 max-w-4xl">
       <div className="flex items-start justify-between mb-8 gap-4">
         <div>
-          <div className={`inline-block text-xs font-semibold px-3 py-1 rounded-full mb-3 chip-${vertical.color || 'blue'}`}>
-            {vertical.name}
+          <div className="inline-block text-xs font-semibold px-3 py-1 rounded-full mb-3 bg-blue-100 text-blue-700">
+            {vertical?.name}
           </div>
           <h1 className="text-2xl font-bold text-slate-900">
-            {latestItem && !isExpired ? latestItem.content.hero.headline : 'Generate your first issue'}
+            {issue ? issue.hero?.headline : 'Generate your first issue'}
           </h1>
-          {latestItem && !isExpired && (
-            <p className="text-sm text-slate-500 mt-1">
-              Generated {formatDate(latestItem.generated_at)} · {profile.country_name}
-            </p>
-          )}
-          {isExpired && latestItem && (
-            <p className="text-sm text-amber-600 mt-1">This issue has expired. Generate a fresh one.</p>
+          {issue && (
+            <p className="text-sm text-slate-500 mt-1">{profile?.country_name}</p>
           )}
         </div>
-        <GenerateButton
-          verticalSlug={slug}
-          verticalName={vertical.name}
-          generationsLeft={generationsLeft}
-          maxGenerations={maxGenerations}
-          hasExistingIssue={!!latestItem && !isExpired}
-        />
+        <div className="flex-shrink-0 text-right">
+          <button
+            onClick={generate}
+            disabled={generating}
+            className="inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 text-sm"
+          >
+            {generating ? 'Generating…' : issue ? 'Refresh Issue' : 'Generate Issue'}
+          </button>
+          {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+        </div>
       </div>
 
-      {latestItem && !isExpired ? (
-        <IssueViewer issue={latestItem.content} />
+      {issue ? (
+        <div className="space-y-6">
+          {/* Hero */}
+          <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-8 text-white">
+            <div className="flex flex-wrap gap-2 mb-4">
+              {issue.hero?.tags?.map((tag: string) => (
+                <span key={tag} className="text-xs bg-white/20 px-3 py-1 rounded-full">{tag}</span>
+              ))}
+            </div>
+            <h2 className="text-2xl font-bold mb-3">{issue.hero?.headline}</h2>
+            <p className="text-blue-100 font-medium mb-3">{issue.hero?.subheadline}</p>
+            <p className="text-blue-200 text-sm">{issue.hero?.summary}</p>
+          </div>
+
+          {/* Section tabs */}
+          <div className="flex gap-1 overflow-x-auto pb-1">
+            {[
+              { key: 'industry_news', label: 'News' },
+              { key: 'trends', label: 'Trends' },
+              { key: 'best_practices', label: 'Best Practices' },
+              { key: 'case_study', label: 'Case Study' },
+              { key: 'leadership', label: 'Leadership' },
+              { key: 'regulatory', label: 'Regulatory' },
+              { key: 'market_data', label: 'Market Data' },
+              { key: 'opinion', label: 'Opinion' },
+              { key: 'resources', label: 'Resources' },
+            ].map(s => (
+              <button
+                key={s.key}
+                onClick={() => setActiveSection(s.key)}
+                className={`px-3 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-colors flex-shrink-0 ${
+                  activeSection === s.key
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-white border border-slate-200 text-slate-600'
+                }`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Section content */}
+          <div className="bg-white border border-slate-200 rounded-2xl p-6">
+            {activeSection === 'industry_news' && (
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 mb-5">Industry News</h3>
+                <div className="space-y-5">
+                  {issue.industry_news?.items?.map((item: any, i: number) => (
+                    <div key={i} className="pb-5 border-b border-slate-100 last:border-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="font-semibold text-slate-900">{item.title}</h4>
+                        {item.local && <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Local</span>}
+                      </div>
+                      <p className="text-sm text-slate-600">{item.summary}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {activeSection === 'trends' && (
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 mb-2">{issue.trends?.title}</h3>
+                <p className="text-blue-600 text-sm mb-4">{issue.trends?.subtitle}</p>
+                <p className="text-slate-700 leading-relaxed mb-4">{issue.trends?.content}</p>
+                {issue.trends?.bullets && (
+                  <ul className="space-y-2 bg-slate-50 rounded-xl p-4">
+                    {issue.trends.bullets.map((b: string, i: number) => (
+                      <li key={i} className="flex items-start gap-2 text-sm text-slate-700">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-2 flex-shrink-0" />{b}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+            {activeSection === 'best_practices' && (
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 mb-2">{issue.best_practices?.title}</h3>
+                <p className="text-slate-700 leading-relaxed mb-4">{issue.best_practices?.content}</p>
+                {issue.best_practices?.steps && (
+                  <div className="space-y-3">
+                    {issue.best_practices.steps.map((step: string, i: number) => (
+                      <div key={i} className="flex gap-3 bg-slate-50 rounded-xl p-4">
+                        <span className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">{i+1}</span>
+                        <p className="text-sm text-slate-700">{step}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+            {activeSection === 'case_study' && (
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 mb-1">Case Study</h3>
+                <p className="text-blue-600 text-sm mb-4">{issue.case_study?.company} · {issue.case_study?.country}</p>
+                <div className="space-y-4">
+                  {[
+                    { label: 'Challenge', content: issue.case_study?.challenge, color: 'bg-red-50' },
+                    { label: 'Solution', content: issue.case_study?.solution, color: 'bg-blue-50' },
+                    { label: 'Result', content: issue.case_study?.result, color: 'bg-green-50' },
+                  ].map(({ label, content, color }) => (
+                    <div key={label} className={`rounded-xl p-4 ${color}`}>
+                      <p className="text-xs font-semibold text-slate-500 uppercase mb-2">{label}</p>
+                      <p className="text-sm text-slate-700">{content}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {activeSection === 'leadership' && (
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 mb-2">{issue.leadership?.title}</h3>
+                <p className="text-slate-700 leading-relaxed">{issue.leadership?.content}</p>
+              </div>
+            )}
+            {activeSection === 'regulatory' && (
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 mb-2">Regulatory Update</h3>
+                <p className="text-slate-500 text-sm mb-4">{issue.regulatory?.summary}</p>
+                <div className="space-y-3">
+                  {issue.regulatory?.items?.map((item: any, i: number) => (
+                    <div key={i} className="border border-slate-200 rounded-xl p-4">
+                      <span className="text-xs font-semibold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">{item.jurisdiction}</span>
+                      <p className="font-medium text-slate-900 mt-2 mb-1">{item.update}</p>
+                      <p className="text-sm text-slate-500">{item.impact}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {activeSection === 'market_data' && (
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 mb-2">Market Data</h3>
+                <p className="text-slate-500 text-sm mb-4">{issue.market_data?.summary}</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {issue.market_data?.data_points?.map((dp: any, i: number) => (
+                    <div key={i} className="bg-slate-50 rounded-xl p-3">
+                      <p className="text-xs text-slate-400 mb-1">{dp.label}</p>
+                      <p className="font-bold text-slate-900">{dp.value?.toLocaleString()}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {activeSection === 'opinion' && (
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 mb-1">{issue.opinion?.title}</h3>
+                <p className="text-sm text-slate-500 mb-4">{issue.opinion?.author} · {issue.opinion?.position}</p>
+                <p className="text-slate-700 leading-relaxed">{issue.opinion?.body}</p>
+              </div>
+            )}
+            {activeSection === 'resources' && (
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 mb-4">Resources</h3>
+                <div className="space-y-3">
+                  {issue.resources?.tools?.map((tool: any, i: number) => (
+                    <div key={i} className="flex gap-3 p-4 bg-slate-50 rounded-xl">
+                      <div>
+                        <p className="font-medium text-slate-900 text-sm">{tool.name}</p>
+                        <p className="text-xs text-slate-500 mt-0.5">{tool.description}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       ) : (
         <div className="bg-white border border-dashed border-slate-300 rounded-2xl p-16 text-center">
           <div className="text-4xl mb-4">📰</div>
           <h2 className="text-lg font-semibold text-slate-700 mb-2">No issue yet</h2>
-          <p className="text-slate-400 text-sm max-w-sm mx-auto">
-            Click "Generate Issue" to create your personalized {vertical.name} magazine issue for {profile.country_name}.
-          </p>
+          <p className="text-slate-400 text-sm">Click "Generate Issue" to create your first {vertical?.name} magazine issue.</p>
         </div>
       )}
     </div>
   );
 }
-
