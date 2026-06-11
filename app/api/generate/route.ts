@@ -1,13 +1,11 @@
-// app/api/generate/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient, createServiceClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 import { generateMagazineIssue } from '@/lib/anthropic';
 import { buildMasterPrompt, buildRefreshPrompt } from '@/lib/prompts';
 import { getCountryByCode, getCurrentMonth } from '@/lib/utils';
 import { getExpiresAt } from '@/lib/stripe';
-import type { SubscriptionTier } from '@/types';
+import { createClient } from '@supabase/supabase-js';
 
-// Rate limits per tier
 const TIER_LIMITS: Record<string, number> = {
   starter: 1,
   pro: 3,
@@ -15,12 +13,35 @@ const TIER_LIMITS: Record<string, number> = {
 };
 
 export async function POST(req: NextRequest) {
-  const supabase = createClient();
+  // Get auth token from request headers
+  const authHeader = req.headers.get('authorization');
+  const token = authHeader?.replace('Bearer ', '');
+  
+  // Use service client for all DB operations
   const serviceSupabase = createServiceClient();
-
-  // Auth check
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (!user || authError) {
+  
+  // Verify the user using their token
+  let userId: string;
+  try {
+    if (!token) {
+      // Try to get user from cookie-based session
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+      const anonClient = createClient(supabaseUrl, supabaseKey, {
+        global: { headers: { Cookie: req.headers.get('cookie') || '' } }
+      });
+      const { data: { user } } = await anonClient.auth.getUser();
+      if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      userId = user.id;
+    } else {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+      const anonClient = createClient(supabaseUrl, supabaseKey);
+      const { data: { user } } = await anonClient.auth.getUser(token);
+      if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      userId = user.id;
+    }
+  } catch {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -30,25 +51,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'verticalSlug is required' }, { status: 400 });
   }
 
-  // Get profile
-  const { data: profile } = await supabase
+  // Get profile using service client
+  const { data: profile } = await serviceSupabase
     .from('profiles')
     .select('country, country_name, professions')
-    .eq('id', user.id)
+    .eq('id', userId)
     .single();
 
-  if (!profile?.professions?.includes(verticalSlug)) {
-    return NextResponse.json({ error: 'Vertical not in your subscription' }, { status: 403 });
-  }
-
   // Get subscription tier
-  const { data: subscription } = await supabase
+  const { data: subscription } = await serviceSupabase
     .from('subscriptions')
     .select('tier')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .maybeSingle();
 
-  const tier = (subscription?.tier as SubscriptionTier) || 'starter';
+  const tier = subscription?.tier || 'starter';
   const limit = TIER_LIMITS[tier] || 1;
 
   // Rate limit check
@@ -57,46 +74,45 @@ export async function POST(req: NextRequest) {
   const { count } = await serviceSupabase
     .from('generation_log')
     .select('*', { count: 'exact', head: true })
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .gte('created_at', startOfDay.toISOString());
 
   if ((count || 0) >= limit) {
     return NextResponse.json(
-      { error: `Daily limit of ${limit} generation(s) reached. Upgrade for more.` },
+      { error: `Daily limit of ${limit} generation(s) reached.` },
       { status: 429 }
     );
   }
 
   // Get vertical info
-  const { data: vertical } = await supabase
+  const { data: vertical } = await serviceSupabase
     .from('verticals')
     .select('name, slug')
     .eq('slug', verticalSlug)
-    .eq('is_active', true)
     .single();
 
   if (!vertical) {
     return NextResponse.json({ error: 'Vertical not found' }, { status: 404 });
   }
 
-  // Get previous headline for refresh diversity
-  const { data: previousItem } = await supabase
+  // Get previous headline
+  const { data: previousItem } = await serviceSupabase
     .from('feed_items')
     .select('content')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .eq('vertical_slug', verticalSlug)
     .order('generated_at', { ascending: false })
     .limit(1)
     .maybeSingle();
 
   const previousHeadline = previousItem?.content?.hero?.headline;
-  const countryData = getCountryByCode(profile.country || 'US');
+  const countryData = getCountryByCode(profile?.country || 'US');
 
   const promptParams = {
     vertical: vertical.name,
     verticalSlug,
-    country: profile.country_name || 'the world',
-    countryCode: profile.country || 'US',
+    country: profile?.country_name || 'the world',
+    countryCode: profile?.country || 'US',
     region: countryData?.region,
     currentMonth: getCurrentMonth(),
   };
@@ -110,26 +126,24 @@ export async function POST(req: NextRequest) {
       prompt,
       verticalSlug,
       vertical.name,
-      profile.country || 'US',
-      profile.country_name || 'Global'
+      profile?.country || 'US',
+      profile?.country_name || 'Global'
     );
 
-    const expiresAt = getExpiresAt(tier);
+    const expiresAt = getExpiresAt(tier as any);
 
-    // Store the issue
     await serviceSupabase.from('feed_items').insert({
-      user_id: user.id,
+      user_id: userId,
       vertical_slug: verticalSlug,
-      country: profile.country || 'US',
+      country: profile?.country || 'US',
       content: issue,
       expires_at: expiresAt,
       generation_prompt: prompt.slice(0, 1000),
       model_used: model,
     });
 
-    // Log generation for rate limiting
     await serviceSupabase.from('generation_log').insert({
-      user_id: user.id,
+      user_id: userId,
       vertical_slug: verticalSlug,
       tokens_used: tokensUsed,
     });
