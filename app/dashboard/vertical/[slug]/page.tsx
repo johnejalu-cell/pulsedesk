@@ -69,13 +69,13 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
   if (loading) return <div className="p-8 text-slate-400">Loading...</div>;
 
   return (
-    <div className="p-6 max-w-4xl">
+    <div className="p-4 sm:p-6 sm:max-w-4xl">
       <div className="flex items-start justify-between mb-8 gap-4">
         <div>
           <div className="inline-block text-xs font-semibold px-3 py-1 rounded-full mb-3 bg-blue-100 text-blue-700">
             {vertical?.name}
           </div>
-          <h1 className="text-2xl font-bold text-slate-900">
+          <h1 className="text-lg sm:text-2xl font-bold text-slate-900">
             {issue ? issue.hero?.headline : 'Generate your first issue'}
           </h1>
           {issue && (
