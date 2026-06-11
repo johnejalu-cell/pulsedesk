@@ -45,9 +45,15 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
     setGenerating(true);
     setError('');
     try {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+
       const res = await fetch('/api/generate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`
+        },
         body: JSON.stringify({ verticalSlug: slug }),
       });
       const data = await res.json();
