@@ -26,9 +26,8 @@ export async function generateMagazineIssue(
 
   // Strip any accidental markdown fences
   const cleaned = rawText
-  .replace(/^```json\s*/i, '')
-  .replace(/^```\s*/i, '')
-  .replace(/\s*```$/i, '')
+  .replace(/```json/gi, '')
+  .replace(/```/g, '')
   .trim();
 
   let parsedContent: MagazineIssue['hero'] | null = null;
