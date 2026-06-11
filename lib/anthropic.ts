@@ -13,7 +13,7 @@ export async function generateMagazineIssue(
   country: string,
   countryName: string
 ): Promise<{ issue: MagazineIssue; tokensUsed: number; model: string }> {
-  const model = 'claude-haiku-4-5-20251001'; // Fast + cost-effective for content generation
+  const model = 'claude-sonnet-4-20250514';
 
   const message = await anthropic.messages.create({
     model,
@@ -24,13 +24,13 @@ export async function generateMagazineIssue(
   const tokensUsed = message.usage.input_tokens + message.usage.output_tokens;
   const rawText = message.content[0].type === 'text' ? message.content[0].text : '';
 
-  // Strip any accidental markdown fences
+  // Aggressively strip all markdown fences and backticks
   const cleaned = rawText
-  .replace(/`/g, '')
-  .replace(/^json\s*/i, '')
-  .trim();
+    .replace(/`/g, '')
+    .replace(/^json\s*/i, '')
+    .trim();
 
-  let parsedContent: MagazineIssue['hero'] | null = null;
+  let parsedContent: any = null;
   try {
     parsedContent = JSON.parse(cleaned);
   } catch {
