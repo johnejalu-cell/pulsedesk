@@ -1,4 +1,3 @@
-// lib/supabase/server.ts
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
@@ -19,7 +18,7 @@ export function createClient() {
               cookieStore.set(name, value, options)
             );
           } catch {
-            // Server component — cookies set in middleware
+            // Called from Server Component - middleware handles session refresh
           }
         },
       },
@@ -27,7 +26,6 @@ export function createClient() {
   );
 }
 
-// Service role client — only for server-side trusted operations
 export function createServiceClient() {
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
