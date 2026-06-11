@@ -13,7 +13,7 @@ export async function generateMagazineIssue(
   country: string,
   countryName: string
 ): Promise<{ issue: MagazineIssue; tokensUsed: number; model: string }> {
-  const model = 'claude-sonnet-4-20250514';
+  const model = 'claude-sonnet-4-6';
 
   const message = await anthropic.messages.create({
     model,
