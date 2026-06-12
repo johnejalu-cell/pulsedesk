@@ -13,52 +13,39 @@ const TIER_LIMITS: Record<string, number> = {
 };
 
 // Unsplash keyword map per vertical
-// Hero search keywords — professional, corporate, no people to avoid irrelevant results
-const VERTICAL_HERO_KEYWORDS: Record<string, string> = {
-  business: 'corporate office boardroom conference table',
-  finance: 'stock exchange trading floor financial charts',
-  technology: 'server room data center technology',
-  healthcare: 'modern hospital operating room medical equipment',
-  legal: 'law library books courtroom',
-  marketing: 'creative agency office whiteboard strategy',
-  hr: 'modern open plan office workspace',
-  education: 'university library lecture hall',
-  realestate: 'glass office building architecture skyline',
-  energy: 'solar farm panels aerial landscape',
-  agriculture: 'aerial farm crops field harvest',
-  publicsector: 'government capitol building architecture',
+// Hardcoded Unsplash image URLs per vertical — curated, consistent, professional
+// Format: https://images.unsplash.com/photo-{id}?w=1200&q=80&fit=crop
+const VERTICAL_HERO_IMAGES: Record<string, string> = {
+  business:     'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&q=80&fit=crop',  // boardroom
+  finance:      'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1200&q=80&fit=crop',  // trading screens
+  technology:   'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&q=80&fit=crop',  // server room
+  healthcare:   'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1200&q=80&fit=crop',  // hospital
+  legal:        'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1200&q=80&fit=crop',  // law books
+  marketing:    'https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&q=80&fit=crop',  // agency whiteboard
+  hr:           'https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=1200&q=80&fit=crop',  // open office
+  education:    'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=1200&q=80&fit=crop',  // library
+  realestate:   'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1200&q=80&fit=crop',  // glass building
+  energy:       'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&fit=crop',  // solar farm
+  agriculture:  'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1200&q=80&fit=crop',  // crop fields
+  publicsector: 'https://images.unsplash.com/photo-1555848962-6e79363ec58f?w=1200&q=80&fit=crop',  // government building
 };
 
-// Case study search keywords
-const CASE_STUDY_PHOTO_KEYWORDS: Record<string, string> = {
-  business: 'entrepreneur startup team meeting',
-  finance: 'bank office professional financial',
-  technology: 'software developer laptop coding',
-  healthcare: 'doctor clinic medical professional',
-  legal: 'lawyer desk legal documents',
-  marketing: 'marketing team brainstorm office',
-  hr: 'job interview office professional',
-  education: 'classroom teacher students learning',
-  realestate: 'commercial real estate property',
-  energy: 'renewable energy solar wind',
-  agriculture: 'farm harvest agriculture modern',
-  publicsector: 'government public service office',
+const VERTICAL_CASE_STUDY_IMAGES: Record<string, string> = {
+  business:     'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=1200&q=80&fit=crop',  // startup team
+  finance:      'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200&q=80&fit=crop',  // finance desk
+  technology:   'https://images.unsplash.com/photo-1537432376769-00f5c2f4c8d2?w=1200&q=80&fit=crop',  // coding
+  healthcare:   'https://images.unsplash.com/photo-1551190822-a9333d879b1f?w=1200&q=80&fit=crop',  // medical team
+  legal:        'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=1200&q=80&fit=crop',  // legal books
+  marketing:    'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=1200&q=80&fit=crop',  // marketing meeting
+  hr:           'https://images.unsplash.com/photo-1565688534245-05d6b5be184a?w=1200&q=80&fit=crop',  // interview
+  education:    'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1200&q=80&fit=crop',  // classroom
+  realestate:   'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200&q=80&fit=crop',  // property
+  energy:       'https://images.unsplash.com/photo-1466611653911-95081537e5b7?w=1200&q=80&fit=crop',  // wind energy
+  agriculture:  'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=1200&q=80&fit=crop',  // farming
+  publicsector: 'https://images.unsplash.com/photo-1577495508048-b635879837f1?w=1200&q=80&fit=crop',  // public office
 };
 
-// Search Unsplash — returns first result for a given query
-async function fetchUnsplashSearch(query: string): Promise<string | null> {
-  try {
-    const res = await fetch(
-      `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=1&orientation=landscape&content_filter=high`,
-      { headers: { Authorization: `Client-ID ${process.env.UNSPLASH_ACCESS_KEY}` } }
-    );
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data?.results?.[0]?.urls?.regular || null;
-  } catch {
-    return null;
-  }
-}
+
 
 export async function POST(req: NextRequest) {
   const authHeader = req.headers.get('authorization');
@@ -169,14 +156,9 @@ export async function POST(req: NextRequest) {
       profile?.country_name || 'Global'
     );
 
-    // Fetch Unsplash images in parallel
-    const heroKeyword = VERTICAL_HERO_KEYWORDS[verticalSlug] || `${vertical.name} professional office`;
-    const caseStudyKeyword = CASE_STUDY_PHOTO_KEYWORDS[verticalSlug] || `${vertical.name} professional`;
-
-    const [heroImage, caseStudyImage] = await Promise.all([
-      fetchUnsplashSearch(heroKeyword),
-      fetchUnsplashSearch(caseStudyKeyword),
-    ]);
+    // Use hardcoded curated images — no API calls needed
+    const heroImage = VERTICAL_HERO_IMAGES[verticalSlug] || null;
+    const caseStudyImage = VERTICAL_CASE_STUDY_IMAGES[verticalSlug] || null;
 
     // Attach images to issue content
     if (heroImage) issue.hero.image_url = heroImage;
