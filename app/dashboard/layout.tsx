@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { TrendingUp, LayoutDashboard, Settings, Menu, X, LogOut } from 'lucide-react';
+import { TrendingUp, LayoutDashboard, Settings, Menu, X, LogOut, Clock } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
@@ -42,6 +42,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   const navItems = [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/dashboard/history', label: 'History', icon: Clock },
     { href: '/dashboard/settings', label: 'Settings', icon: Settings },
   ];
 
@@ -210,3 +211,4 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
+
