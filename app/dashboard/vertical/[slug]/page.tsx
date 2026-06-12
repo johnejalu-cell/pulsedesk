@@ -87,15 +87,15 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
       {issue ? (
         <div className="space-y-4">
           {/* Hero with image */}
-          <div className="relative mx-4 rounded-2xl overflow-hidden">
+          <div className="relative mx-4 rounded-2xl overflow-hidden bg-gradient-to-br from-blue-600 to-blue-800">
             {issue.hero?.image_url && (
               <img
                 src={issue.hero.image_url}
                 alt={issue.hero?.headline || 'Cover'}
-                className="w-full h-48 sm:h-64 object-cover"
+                className="w-full h-48 sm:h-64 object-cover opacity-40"
               />
             )}
-            <div className={`${issue.hero?.image_url ? 'absolute inset-0' : ''} bg-gradient-to-br from-blue-600/90 to-blue-800/90 p-5 text-white flex flex-col justify-end`}>
+            <div className={`${issue.hero?.image_url ? 'absolute inset-0' : ''} p-5 text-white flex flex-col justify-end`}>
               <div className="flex flex-wrap gap-1.5 mb-3">
                 {issue.hero?.tags?.map((tag: string) => (
                   <span key={tag} className="text-xs bg-white/20 px-2 py-0.5 rounded-full">{tag}</span>
