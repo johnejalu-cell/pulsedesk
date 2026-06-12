@@ -41,8 +41,6 @@ function formatDate(iso: string) {
   });
 }
 
-// ── Section renderers ──────────────────────────────────────────
-
 function HeroSection({ data }: { data: any }) {
   return (
     <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-6 text-white">
@@ -85,6 +83,49 @@ function NewsSection({ data }: { data: any }) {
   );
 }
 
+function CaseStudySection({ data, index }: { data: any; index: number }) {
+  return (
+    <div className="bg-white rounded-2xl border border-slate-200 p-6">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="bg-slate-100 text-slate-500 text-xs font-semibold px-2 py-1 rounded">
+          {String(index).padStart(2, '0')}
+        </span>
+        <h2 className="font-bold text-slate-900">Case Study</h2>
+      </div>
+      {data.company && (
+        <div className="bg-blue-50 rounded-xl px-4 py-3 mb-4">
+          <p className="text-blue-800 font-semibold text-sm">{data.company}</p>
+          {data.country && <p className="text-blue-600 text-xs mt-0.5">{data.country}</p>}
+        </div>
+      )}
+      {data.challenge && (
+        <div className="mb-3">
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Challenge</p>
+          <p className="text-sm text-slate-600 leading-relaxed">{data.challenge}</p>
+        </div>
+      )}
+      {data.solution && (
+        <div className="mb-3">
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Solution</p>
+          <p className="text-sm text-slate-600 leading-relaxed">{data.solution}</p>
+        </div>
+      )}
+      {data.result && (
+        <div className="mb-3">
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Result</p>
+          <p className="text-sm text-slate-600 leading-relaxed">{data.result}</p>
+        </div>
+      )}
+      {data.lesson && (
+        <div className="bg-amber-50 border border-amber-100 rounded-xl px-4 py-3 mt-2">
+          <p className="text-xs font-semibold text-amber-600 uppercase tracking-wider mb-1">Key Lesson</p>
+          <p className="text-sm text-amber-800 leading-relaxed">{data.lesson}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function StandardSection({ label, data, index }: { label: string; data: any; index: number }) {
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-6">
@@ -96,7 +137,6 @@ function StandardSection({ label, data, index }: { label: string; data: any; ind
       </div>
       {data.subtitle && <p className="text-slate-500 text-sm italic mb-3">{data.subtitle}</p>}
       {data.content && <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-wrap mb-4">{data.content}</p>}
-
       {data.bullets?.length > 0 && (
         <ul className="space-y-2 mb-4">
           {data.bullets.map((b: string, i: number) => (
@@ -107,7 +147,6 @@ function StandardSection({ label, data, index }: { label: string; data: any; ind
           ))}
         </ul>
       )}
-
       {data.steps?.length > 0 && (
         <ol className="space-y-2 mb-4">
           {data.steps.map((s: string, i: number) => (
@@ -118,7 +157,6 @@ function StandardSection({ label, data, index }: { label: string; data: any; ind
           ))}
         </ol>
       )}
-
       {data.quote && (
         <blockquote className="border-l-4 border-blue-400 pl-4 my-4">
           <p className="text-slate-600 text-sm italic">"{data.quote.text}"</p>
@@ -127,7 +165,6 @@ function StandardSection({ label, data, index }: { label: string; data: any; ind
           )}
         </blockquote>
       )}
-
       {data.cta && (
         <div className="bg-blue-50 rounded-xl px-4 py-3 mt-3">
           <p className="text-blue-700 text-sm font-medium">{data.cta}</p>
@@ -136,8 +173,6 @@ function StandardSection({ label, data, index }: { label: string; data: any; ind
     </div>
   );
 }
-
-// ── Full issue viewer ──────────────────────────────────────────
 
 function IssueViewer({ item, onBack }: { item: FeedItem; onBack: () => void }) {
   const sections = SECTION_ORDER.filter(key => item.content?.[key]);
@@ -149,7 +184,6 @@ function IssueViewer({ item, onBack }: { item: FeedItem; onBack: () => void }) {
         <button onClick={onBack} className="text-blue-600 hover:underline text-sm font-medium mb-6 block">
           ← Back to History
         </button>
-
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-6">
           <h1 className="text-2xl font-bold text-slate-900">
             {VERTICAL_LABELS[item.vertical_slug] || item.vertical_slug}
@@ -158,21 +192,19 @@ function IssueViewer({ item, onBack }: { item: FeedItem; onBack: () => void }) {
             {formatDate(item.generated_at)} · {item.country}
           </p>
         </div>
-
         <div className="space-y-4">
           {sections.map(key => {
             const data = item.content[key];
             if (key === 'hero') return <HeroSection key={key} data={data} />;
             if (key === 'industry_news') return <NewsSection key={key} data={data} />;
-            return <StandardSection key={key} label={key.replace('_', ' ')} data={data} index={sectionIndex++} />;
+            if (key === 'case_study') return <CaseStudySection key={key} data={data} index={sectionIndex++} />;
+            return <StandardSection key={key} label={key.replace(/_/g, ' ')} data={data} index={sectionIndex++} />;
           })}
         </div>
       </div>
     </div>
   );
 }
-
-// ── History list ───────────────────────────────────────────────
 
 export default function HistoryPage() {
   const router = useRouter();
@@ -186,14 +218,12 @@ export default function HistoryPage() {
     async function load() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { router.push('/login'); return; }
-
       const { data, error } = await supabase
         .from('feed_items')
         .select('id, vertical_slug, country, generated_at, content')
         .eq('user_id', session.user.id)
         .order('generated_at', { ascending: false })
         .limit(10);
-
       if (error) setError(error.message);
       else setItems(data || []);
       setLoading(false);
@@ -210,10 +240,7 @@ export default function HistoryPage() {
     if (hero?.headline) return { title: hero.headline, preview: hero.summary || hero.subheadline || '' };
     for (const key of SECTION_ORDER) {
       if (content?.[key]?.content) {
-        return {
-          title: content[key].title || key,
-          preview: content[key].content.slice(0, 180) + '...',
-        };
+        return { title: content[key].title || key, preview: content[key].content.slice(0, 180) + '...' };
       }
     }
     return null;
