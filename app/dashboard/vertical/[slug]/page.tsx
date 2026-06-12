@@ -87,20 +87,23 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
       {issue ? (
         <div className="space-y-4">
           {/* Hero with image */}
-          <div className="relative mx-4 rounded-2xl overflow-hidden bg-gradient-to-br from-blue-600 to-blue-800">
+          <div className="mx-4 rounded-2xl overflow-hidden">
             {issue.hero?.image_url && (
-              <img
-                src={issue.hero.image_url}
-                alt={issue.hero?.headline || 'Cover'}
-                className="w-full h-48 sm:h-64 object-cover opacity-40"
-              />
-            )}
-            <div className={`${issue.hero?.image_url ? 'absolute inset-0' : ''} p-5 text-white flex flex-col justify-end`}>
-              <div className="flex flex-wrap gap-1.5 mb-3">
-                {issue.hero?.tags?.map((tag: string) => (
-                  <span key={tag} className="text-xs bg-white/20 px-2 py-0.5 rounded-full">{tag}</span>
-                ))}
+              <div className="relative h-40 sm:h-52">
+                <img
+                  src={issue.hero.image_url}
+                  alt={issue.hero?.headline || 'Cover'}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-black/40" />
+                <div className="absolute bottom-3 left-4 right-4 flex flex-wrap gap-1.5">
+                  {issue.hero?.tags?.map((tag: string) => (
+                    <span key={tag} className="text-xs bg-white/20 text-white px-2 py-0.5 rounded-full">{tag}</span>
+                  ))}
+                </div>
               </div>
+            )}
+            <div className="bg-gradient-to-br from-blue-600 to-blue-800 p-5 text-white">
               <h2 className="text-base sm:text-xl font-bold mb-2 leading-snug">{issue.hero?.headline}</h2>
               <p className="text-blue-100 text-sm font-medium mb-2">{issue.hero?.subheadline}</p>
               <p className="text-blue-200 text-xs leading-relaxed">{issue.hero?.summary}</p>
