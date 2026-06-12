@@ -86,19 +86,28 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
 
       {issue ? (
         <div className="space-y-4">
-          {/* Hero */}
-          <div className="bg-gradient-to-br from-blue-600 to-blue-800 p-5 text-white mx-4 rounded-2xl">
-            <div className="flex flex-wrap gap-1.5 mb-3">
-              {issue.hero?.tags?.map((tag: string) => (
-                <span key={tag} className="text-xs bg-white/20 px-2 py-0.5 rounded-full">{tag}</span>
-              ))}
+          {/* Hero with image */}
+          <div className="relative mx-4 rounded-2xl overflow-hidden">
+            {issue.hero?.image_url && (
+              <img
+                src={issue.hero.image_url}
+                alt={issue.hero?.headline || 'Cover'}
+                className="w-full h-48 sm:h-64 object-cover"
+              />
+            )}
+            <div className={`${issue.hero?.image_url ? 'absolute inset-0' : ''} bg-gradient-to-br from-blue-600/90 to-blue-800/90 p-5 text-white flex flex-col justify-end`}>
+              <div className="flex flex-wrap gap-1.5 mb-3">
+                {issue.hero?.tags?.map((tag: string) => (
+                  <span key={tag} className="text-xs bg-white/20 px-2 py-0.5 rounded-full">{tag}</span>
+                ))}
+              </div>
+              <h2 className="text-base sm:text-xl font-bold mb-2 leading-snug">{issue.hero?.headline}</h2>
+              <p className="text-blue-100 text-sm font-medium mb-2">{issue.hero?.subheadline}</p>
+              <p className="text-blue-200 text-xs leading-relaxed">{issue.hero?.summary}</p>
             </div>
-            <h2 className="text-base sm:text-xl font-bold mb-2 leading-snug">{issue.hero?.headline}</h2>
-            <p className="text-blue-100 text-sm font-medium mb-2">{issue.hero?.subheadline}</p>
-            <p className="text-blue-200 text-xs leading-relaxed">{issue.hero?.summary}</p>
           </div>
 
-          {/* Section tabs - scrollable */}
+          {/* Section tabs */}
           <div className="flex gap-1.5 overflow-x-auto px-4 pb-1 scrollbar-none">
             {[
               { key: 'industry_news', label: 'News' },
@@ -157,6 +166,14 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
                     ))}
                   </ul>
                 )}
+                {issue.trends?.quote && (
+                  <blockquote className="border-l-4 border-blue-400 pl-4 mt-4">
+                    <p className="text-slate-600 text-sm italic">"{issue.trends.quote.text}"</p>
+                    {issue.trends.quote.attribution && (
+                      <p className="text-slate-400 text-xs mt-1">— {issue.trends.quote.attribution}</p>
+                    )}
+                  </blockquote>
+                )}
               </div>
             )}
             {activeSection === 'best_practices' && (
@@ -173,10 +190,22 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
                     ))}
                   </div>
                 )}
+                {issue.best_practices?.cta && (
+                  <div className="bg-blue-50 rounded-xl px-4 py-3 mt-3">
+                    <p className="text-blue-700 text-sm font-medium">{issue.best_practices.cta}</p>
+                  </div>
+                )}
               </div>
             )}
             {activeSection === 'case_study' && (
               <div>
+                {issue.case_study?.image_url && (
+                  <img
+                    src={issue.case_study.image_url}
+                    alt={issue.case_study?.company || 'Case Study'}
+                    className="w-full h-36 object-cover rounded-xl mb-4"
+                  />
+                )}
                 <h3 className="text-base font-bold text-slate-900 mb-1">Case Study</h3>
                 <p className="text-blue-600 text-xs mb-3">{issue.case_study?.company} · {issue.case_study?.country}</p>
                 <div className="space-y-3">
@@ -190,13 +219,29 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
                       <p className="text-sm text-slate-700">{content}</p>
                     </div>
                   ))}
+                  {issue.case_study?.lesson && (
+                    <div className="bg-amber-50 border border-amber-100 rounded-xl p-3">
+                      <p className="text-xs font-semibold text-amber-600 uppercase mb-1">Key Lesson</p>
+                      <p className="text-sm text-amber-800">{issue.case_study.lesson}</p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
             {activeSection === 'leadership' && (
               <div>
                 <h3 className="text-base font-bold text-slate-900 mb-2">{issue.leadership?.title}</h3>
-                <p className="text-sm text-slate-700 leading-relaxed">{issue.leadership?.content}</p>
+                <p className="text-blue-600 text-xs mb-3">{issue.leadership?.subtitle}</p>
+                <p className="text-sm text-slate-700 leading-relaxed mb-4">{issue.leadership?.content}</p>
+                {issue.leadership?.bullets && (
+                  <ul className="space-y-2 bg-slate-50 rounded-xl p-3">
+                    {issue.leadership.bullets.map((b: string, i: number) => (
+                      <li key={i} className="flex items-start gap-2 text-sm text-slate-700">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-2 flex-shrink-0" />{b}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             )}
             {activeSection === 'regulatory' && (
@@ -216,7 +261,8 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
             )}
             {activeSection === 'market_data' && (
               <div>
-                <h3 className="text-base font-bold text-slate-900 mb-2">Market Data</h3>
+                <h3 className="text-base font-bold text-slate-900 mb-1">Market Data</h3>
+                <p className="text-slate-500 text-xs mb-3">{issue.market_data?.chart_title}</p>
                 <p className="text-slate-500 text-sm mb-3">{issue.market_data?.summary}</p>
                 <div className="grid grid-cols-2 gap-2">
                   {issue.market_data?.data_points?.map((dp: any, i: number) => (
@@ -231,21 +277,59 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
             {activeSection === 'opinion' && (
               <div>
                 <h3 className="text-base font-bold text-slate-900 mb-1">{issue.opinion?.title}</h3>
-                <p className="text-xs text-slate-500 mb-3">{issue.opinion?.author} · {issue.opinion?.position}</p>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-7 h-7 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
+                    {issue.opinion?.author?.[0] || 'O'}
+                  </div>
+                  <p className="text-xs text-slate-500">{issue.opinion?.author} · {issue.opinion?.position}</p>
+                </div>
                 <p className="text-sm text-slate-700 leading-relaxed">{issue.opinion?.body}</p>
               </div>
             )}
             {activeSection === 'resources' && (
               <div>
                 <h3 className="text-base font-bold text-slate-900 mb-3">Resources</h3>
-                <div className="space-y-2">
-                  {issue.resources?.tools?.map((tool: any, i: number) => (
-                    <div key={i} className="p-3 bg-slate-50 rounded-xl">
-                      <p className="font-medium text-slate-900 text-sm">{tool.name}</p>
-                      <p className="text-xs text-slate-500 mt-0.5">{tool.description}</p>
+                {issue.resources?.tools?.length > 0 && (
+                  <div className="mb-4">
+                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Tools</p>
+                    <div className="space-y-2">
+                      {issue.resources.tools.map((tool: any, i: number) => (
+                        <div key={i} className="p-3 bg-slate-50 rounded-xl">
+                          <p className="font-medium text-slate-900 text-sm">{tool.name}</p>
+                          <p className="text-xs text-slate-500 mt-0.5">{tool.description}</p>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </div>
+                )}
+                {issue.resources?.events?.length > 0 && (
+                  <div className="mb-4">
+                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Events</p>
+                    <div className="space-y-2">
+                      {issue.resources.events.map((e: any, i: number) => (
+                        <div key={i} className="p-3 bg-slate-50 rounded-xl">
+                          <p className="font-medium text-slate-900 text-sm">{e.name || e.title}</p>
+                          {e.date && <p className="text-xs text-slate-400 mt-0.5">{e.date}</p>}
+                          {e.description && <p className="text-xs text-slate-500 mt-0.5">{e.description}</p>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {issue.resources?.reading?.length > 0 && (
+                  <div>
+                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Reading</p>
+                    <div className="space-y-2">
+                      {issue.resources.reading.map((r: any, i: number) => (
+                        <div key={i} className="p-3 bg-slate-50 rounded-xl">
+                          <p className="font-medium text-slate-900 text-sm">{r.title}</p>
+                          {r.author && <p className="text-xs text-slate-400 mt-0.5">{r.author}</p>}
+                          {r.description && <p className="text-xs text-slate-500 mt-0.5">{r.description}</p>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
