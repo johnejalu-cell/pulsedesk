@@ -29,7 +29,7 @@ const VERTICAL_LABELS: Record<string, string> = {
 };
 
 const SECTION_KEYS = [
-  'news', 'trends', 'best_practices', 'case_study',
+  'hero', 'industry_news', 'trends', 'best_practices', 'case_study',
   'leadership', 'regulatory', 'market_data', 'opinion', 'resources'
 ];
 
