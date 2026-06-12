@@ -149,7 +149,8 @@ function CaseStudySection({ data, index }: { data: any; index: number }) {
 function MarketDataSection({ data, index }: { data: any; index: number }) {
   const points = data.data_points || [];
   return (
-    <SectionShell index={index} title={data.chart_title || 'Market Data'}>
+    <SectionShell index={index} title="Market Data">
+      {data.chart_title && <p className="text-slate-500 text-sm font-medium mb-3">{data.chart_title}</p>}
       {data.summary && <p className="text-slate-600 text-sm leading-relaxed mb-4">{data.summary}</p>}
       {points.length > 0 && (
         <div className="space-y-2">
