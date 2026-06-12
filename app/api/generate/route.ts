@@ -12,19 +12,49 @@ const TIER_LIMITS: Record<string, number> = {
   enterprise: 10,
 };
 
+// Unsplash keyword map per vertical
+const VERTICAL_PHOTO_KEYWORDS: Record<string, string> = {
+  business: 'business professionals africa',
+  finance: 'finance investment africa',
+  technology: 'technology innovation africa',
+  healthcare: 'healthcare medicine africa',
+  legal: 'law justice professional',
+  marketing: 'marketing brand strategy',
+  hr: 'human resources team workplace',
+  education: 'education learning africa',
+  realestate: 'real estate property africa',
+  energy: 'energy renewable africa',
+  agriculture: 'agriculture farming africa',
+  publicsector: 'government public sector africa',
+};
+
+async function fetchUnsplashImage(query: string): Promise<string | null> {
+  try {
+    const res = await fetch(
+      `https://api.unsplash.com/photos/random?query=${encodeURIComponent(query)}&orientation=landscape&content_filter=high`,
+      {
+        headers: {
+          Authorization: `Client-ID ${process.env.UNSPLASH_ACCESS_KEY}`,
+        },
+      }
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data?.urls?.regular || null;
+  } catch {
+    return null;
+  }
+}
+
 export async function POST(req: NextRequest) {
-  // Get auth token from request headers
   const authHeader = req.headers.get('authorization');
   const token = authHeader?.replace('Bearer ', '');
   
-  // Use service client for all DB operations
   const serviceSupabase = createServiceClient();
   
-  // Verify the user using their token
   let userId: string;
   try {
     if (!token) {
-      // Try to get user from cookie-based session
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
       const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
       const anonClient = createClient(supabaseUrl, supabaseKey, {
@@ -51,14 +81,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'verticalSlug is required' }, { status: 400 });
   }
 
-  // Get profile using service client
   const { data: profile } = await serviceSupabase
     .from('profiles')
     .select('country, country_name, professions')
     .eq('id', userId)
     .single();
 
-  // Get subscription tier
   const { data: subscription } = await serviceSupabase
     .from('subscriptions')
     .select('tier')
@@ -68,7 +96,6 @@ export async function POST(req: NextRequest) {
   const tier = subscription?.tier || 'starter';
   const limit = TIER_LIMITS[tier] || 1;
 
-  // Rate limit check
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
   const { count } = await serviceSupabase
@@ -84,7 +111,6 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Get vertical info
   const { data: vertical } = await serviceSupabase
     .from('verticals')
     .select('name, slug')
@@ -95,7 +121,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Vertical not found' }, { status: 404 });
   }
 
-  // Get previous headline
   const { data: previousItem } = await serviceSupabase
     .from('feed_items')
     .select('content')
@@ -130,6 +155,19 @@ export async function POST(req: NextRequest) {
       profile?.country_name || 'Global'
     );
 
+    // Fetch Unsplash images in parallel
+    const heroKeyword = VERTICAL_PHOTO_KEYWORDS[verticalSlug] || `${vertical.name} africa professional`;
+    const caseStudyKeyword = `${issue.case_study?.country || profile?.country_name || 'africa'} business professional`;
+
+    const [heroImage, caseStudyImage] = await Promise.all([
+      fetchUnsplashImage(heroKeyword),
+      fetchUnsplashImage(caseStudyKeyword),
+    ]);
+
+    // Attach images to issue content
+    if (heroImage) issue.hero.image_url = heroImage;
+    if (caseStudyImage && issue.case_study) issue.case_study.image_url = caseStudyImage;
+
     const expiresAt = getExpiresAt(tier as any);
 
     await serviceSupabase.from('feed_items').insert({
@@ -157,3 +195,4 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
