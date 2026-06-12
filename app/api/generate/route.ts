@@ -157,7 +157,10 @@ export async function POST(req: NextRequest) {
 
     // Fetch Unsplash images in parallel
     const heroKeyword = VERTICAL_PHOTO_KEYWORDS[verticalSlug] || `${vertical.name} africa professional`;
-    const caseStudyKeyword = `${issue.case_study?.country || profile?.country_name || 'africa'} business professional`;
+    // Use industry context from the case study for a more relevant image
+    const caseStudyIndustry = vertical.name.toLowerCase();
+    const caseStudyCountry = issue.case_study?.country || profile?.country_name || 'africa';
+    const caseStudyKeyword = `${caseStudyIndustry} ${caseStudyCountry}`;
 
     const [heroImage, caseStudyImage] = await Promise.all([
       fetchUnsplashImage(heroKeyword),
