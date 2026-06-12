@@ -41,6 +41,20 @@ function formatDate(iso: string) {
   });
 }
 
+function SectionShell({ index, title, children }: { index: number; title: string; children: React.ReactNode }) {
+  return (
+    <div className="bg-white rounded-2xl border border-slate-200 p-6">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="bg-slate-100 text-slate-500 text-xs font-semibold px-2 py-1 rounded">
+          {String(index).padStart(2, '0')}
+        </span>
+        <h2 className="font-bold text-slate-900">{title}</h2>
+      </div>
+      {children}
+    </div>
+  );
+}
+
 function HeroSection({ data }: { data: any }) {
   return (
     <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-6 text-white">
@@ -59,11 +73,21 @@ function HeroSection({ data }: { data: any }) {
   );
 }
 
-function NewsSection({ data }: { data: any }) {
+function NewsSection({ data, index, title }: { data: any; index?: number; title?: string }) {
   const items = data.items || [];
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-6">
-      <h2 className="font-bold text-slate-900 text-lg mb-4">Industry News</h2>
+      {index !== undefined ? (
+        <div className="flex items-center gap-2 mb-4">
+          <span className="bg-slate-100 text-slate-500 text-xs font-semibold px-2 py-1 rounded">
+            {String(index).padStart(2, '0')}
+          </span>
+          <h2 className="font-bold text-slate-900">{title || 'News'}</h2>
+        </div>
+      ) : (
+        <h2 className="font-bold text-slate-900 text-lg mb-4">Industry News</h2>
+      )}
+      {data.summary && <p className="text-slate-600 text-sm leading-relaxed mb-4">{data.summary}</p>}
       <div className="space-y-4">
         {items.map((item: any, i: number) => (
           <div key={i} className="border-b border-slate-100 last:border-0 pb-4 last:pb-0">
@@ -72,7 +96,7 @@ function NewsSection({ data }: { data: any }) {
                 ? <MapPin className="h-3.5 w-3.5 text-green-500 mt-0.5 flex-shrink-0" />
                 : <Globe className="h-3.5 w-3.5 text-blue-400 mt-0.5 flex-shrink-0" />
               }
-              <p className="text-sm font-semibold text-slate-800">{item.title}</p>
+              <p className="text-sm font-semibold text-slate-800">{item.title || item.name}</p>
             </div>
             {item.summary && <p className="text-sm text-slate-500 leading-relaxed ml-5">{item.summary}</p>}
             {item.source && <p className="text-xs text-slate-400 mt-1 ml-5">Source: {item.source}</p>}
@@ -85,13 +109,7 @@ function NewsSection({ data }: { data: any }) {
 
 function CaseStudySection({ data, index }: { data: any; index: number }) {
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-6">
-      <div className="flex items-center gap-2 mb-3">
-        <span className="bg-slate-100 text-slate-500 text-xs font-semibold px-2 py-1 rounded">
-          {String(index).padStart(2, '0')}
-        </span>
-        <h2 className="font-bold text-slate-900">Case Study</h2>
-      </div>
+    <SectionShell index={index} title="Case Study">
       {data.company && (
         <div className="bg-blue-50 rounded-xl px-4 py-3 mb-4">
           <p className="text-blue-800 font-semibold text-sm">{data.company}</p>
@@ -122,21 +140,107 @@ function CaseStudySection({ data, index }: { data: any; index: number }) {
           <p className="text-sm text-amber-800 leading-relaxed">{data.lesson}</p>
         </div>
       )}
-    </div>
+    </SectionShell>
+  );
+}
+
+function MarketDataSection({ data, index }: { data: any; index: number }) {
+  const points = data.data_points || [];
+  return (
+    <SectionShell index={index} title={data.chart_title || 'Market Data'}>
+      {data.summary && <p className="text-slate-600 text-sm leading-relaxed mb-4">{data.summary}</p>}
+      {points.length > 0 && (
+        <div className="space-y-2">
+          {points.map((point: any, i: number) => (
+            <div key={i} className="flex items-start gap-3 bg-slate-50 rounded-xl px-4 py-3">
+              <span className="text-blue-600 font-bold text-sm min-w-fit">{point.value || point.metric}</span>
+              <span className="text-slate-600 text-sm">{point.label || point.description || point.context}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </SectionShell>
+  );
+}
+
+function OpinionSection({ data, index }: { data: any; index: number }) {
+  return (
+    <SectionShell index={index} title={data.title || 'Opinion'}>
+      {(data.author || data.position) && (
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
+            {data.author?.[0] || 'O'}
+          </div>
+          <div>
+            {data.author && <p className="text-sm font-semibold text-slate-800">{data.author}</p>}
+            {data.position && <p className="text-xs text-slate-400">{data.position}</p>}
+          </div>
+        </div>
+      )}
+      {data.body && <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-wrap">{data.body}</p>}
+      {data.content && <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-wrap">{data.content}</p>}
+    </SectionShell>
+  );
+}
+
+function ResourcesSection({ data, index }: { data: any; index: number }) {
+  const tools = data.tools || [];
+  const events = data.events || [];
+  const reading = data.reading || [];
+  return (
+    <SectionShell index={index} title="Resources">
+      {tools.length > 0 && (
+        <div className="mb-4">
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Tools</p>
+          <div className="space-y-2">
+            {tools.map((t: any, i: number) => (
+              <div key={i} className="bg-slate-50 rounded-xl px-4 py-3">
+                <p className="text-sm font-semibold text-slate-800">{t.name || t.title}</p>
+                {(t.description || t.summary) && <p className="text-xs text-slate-500 mt-0.5">{t.description || t.summary}</p>}
+                {t.url && <a href={t.url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline mt-0.5 block">{t.url}</a>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      {events.length > 0 && (
+        <div className="mb-4">
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Events</p>
+          <div className="space-y-2">
+            {events.map((e: any, i: number) => (
+              <div key={i} className="bg-slate-50 rounded-xl px-4 py-3">
+                <p className="text-sm font-semibold text-slate-800">{e.name || e.title}</p>
+                {(e.date || e.when) && <p className="text-xs text-slate-400 mt-0.5">{e.date || e.when}</p>}
+                {(e.description || e.summary) && <p className="text-xs text-slate-500 mt-0.5">{e.description || e.summary}</p>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      {reading.length > 0 && (
+        <div>
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Reading</p>
+          <div className="space-y-2">
+            {reading.map((r: any, i: number) => (
+              <div key={i} className="bg-slate-50 rounded-xl px-4 py-3">
+                <p className="text-sm font-semibold text-slate-800">{r.title || r.name}</p>
+                {(r.author || r.by) && <p className="text-xs text-slate-400 mt-0.5">{r.author || r.by}</p>}
+                {(r.description || r.summary) && <p className="text-xs text-slate-500 mt-0.5">{r.description || r.summary}</p>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </SectionShell>
   );
 }
 
 function StandardSection({ label, data, index }: { label: string; data: any; index: number }) {
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-6">
-      <div className="flex items-center gap-2 mb-3">
-        <span className="bg-slate-100 text-slate-500 text-xs font-semibold px-2 py-1 rounded">
-          {String(index).padStart(2, '0')}
-        </span>
-        <h2 className="font-bold text-slate-900">{data.title || label}</h2>
-      </div>
+    <SectionShell index={index} title={data.title || label}>
       {data.subtitle && <p className="text-slate-500 text-sm italic mb-3">{data.subtitle}</p>}
       {data.content && <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-wrap mb-4">{data.content}</p>}
+      {data.body && <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-wrap mb-4">{data.body}</p>}
       {data.bullets?.length > 0 && (
         <ul className="space-y-2 mb-4">
           {data.bullets.map((b: string, i: number) => (
@@ -160,9 +264,7 @@ function StandardSection({ label, data, index }: { label: string; data: any; ind
       {data.quote && (
         <blockquote className="border-l-4 border-blue-400 pl-4 my-4">
           <p className="text-slate-600 text-sm italic">"{data.quote.text}"</p>
-          {data.quote.attribution && (
-            <p className="text-slate-400 text-xs mt-1">— {data.quote.attribution}</p>
-          )}
+          {data.quote.attribution && <p className="text-slate-400 text-xs mt-1">— {data.quote.attribution}</p>}
         </blockquote>
       )}
       {data.cta && (
@@ -170,7 +272,7 @@ function StandardSection({ label, data, index }: { label: string; data: any; ind
           <p className="text-blue-700 text-sm font-medium">{data.cta}</p>
         </div>
       )}
-    </div>
+    </SectionShell>
   );
 }
 
@@ -188,9 +290,7 @@ function IssueViewer({ item, onBack }: { item: FeedItem; onBack: () => void }) {
           <h1 className="text-2xl font-bold text-slate-900">
             {VERTICAL_LABELS[item.vertical_slug] || item.vertical_slug}
           </h1>
-          <p className="text-slate-500 text-sm mt-1">
-            {formatDate(item.generated_at)} · {item.country}
-          </p>
+          <p className="text-slate-500 text-sm mt-1">{formatDate(item.generated_at)} · {item.country}</p>
         </div>
         <div className="space-y-4">
           {sections.map(key => {
@@ -198,6 +298,10 @@ function IssueViewer({ item, onBack }: { item: FeedItem; onBack: () => void }) {
             if (key === 'hero') return <HeroSection key={key} data={data} />;
             if (key === 'industry_news') return <NewsSection key={key} data={data} />;
             if (key === 'case_study') return <CaseStudySection key={key} data={data} index={sectionIndex++} />;
+            if (key === 'regulatory') return <NewsSection key={key} data={data} index={sectionIndex++} title="Regulatory" />;
+            if (key === 'market_data') return <MarketDataSection key={key} data={data} index={sectionIndex++} />;
+            if (key === 'opinion') return <OpinionSection key={key} data={data} index={sectionIndex++} />;
+            if (key === 'resources') return <ResourcesSection key={key} data={data} index={sectionIndex++} />;
             return <StandardSection key={key} label={key.replace(/_/g, ' ')} data={data} index={sectionIndex++} />;
           })}
         </div>
@@ -239,9 +343,10 @@ export default function HistoryPage() {
     const hero = content?.hero;
     if (hero?.headline) return { title: hero.headline, preview: hero.summary || hero.subheadline || '' };
     for (const key of SECTION_ORDER) {
-      if (content?.[key]?.content) {
-        return { title: content[key].title || key, preview: content[key].content.slice(0, 180) + '...' };
-      }
+      const s = content?.[key];
+      if (s?.content) return { title: s.title || key, preview: s.content.slice(0, 180) + '...' };
+      if (s?.body) return { title: s.title || key, preview: s.body.slice(0, 180) + '...' };
+      if (s?.summary) return { title: key, preview: s.summary.slice(0, 180) + '...' };
     }
     return null;
   }
