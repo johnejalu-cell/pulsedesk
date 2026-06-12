@@ -13,54 +13,39 @@ const TIER_LIMITS: Record<string, number> = {
 };
 
 // Unsplash keyword map per vertical
-// Curated Unsplash photo IDs for hero — consistent, high quality, professional
-const VERTICAL_HERO_PHOTO_IDS: Record<string, string> = {
-  business: 'hpjSkU2UYSU',      // corporate boardroom
-  finance: 'uiKBysLKujI',       // financial trading screens
-  technology: 'M5tzZtFCOfs',    // tech developer screens
-  healthcare: '7jd3Y0aP7HY',    // medical professionals
-  legal: 'ICgNKxzaU_A',         // law books desk
-  marketing: 'OQMZwNd3ThU',     // creative agency whiteboard
-  hr: 'gMsnXqILjp4',            // team meeting office
-  education: 'WE_Kv_ZB1l0',     // lecture hall university
-  realestate: 'jdp-YmEBFaU',    // modern office building
-  energy: 'XGAZjOD8uto',        // solar panels landscape
-  agriculture: '8_NI1pr1T4s',   // crops farmland aerial
-  publicsector: 'gZB-i-dA6ns',  // government building exterior
+// Hero search keywords — professional, corporate, no people to avoid irrelevant results
+const VERTICAL_HERO_KEYWORDS: Record<string, string> = {
+  business: 'corporate office boardroom conference table',
+  finance: 'stock exchange trading floor financial charts',
+  technology: 'server room data center technology',
+  healthcare: 'modern hospital operating room medical equipment',
+  legal: 'law library books courtroom',
+  marketing: 'creative agency office whiteboard strategy',
+  hr: 'modern open plan office workspace',
+  education: 'university library lecture hall',
+  realestate: 'glass office building architecture skyline',
+  energy: 'solar farm panels aerial landscape',
+  agriculture: 'aerial farm crops field harvest',
+  publicsector: 'government capitol building architecture',
 };
 
-// Search keywords for case study images (uses search API for variety)
+// Case study search keywords
 const CASE_STUDY_PHOTO_KEYWORDS: Record<string, string> = {
-  business: 'entrepreneur startup office success',
-  finance: 'banking professional finance office',
-  technology: 'software developer coding laptop',
-  healthcare: 'medical clinic healthcare team',
-  legal: 'lawyer legal professional office',
-  marketing: 'digital marketing creative team',
-  hr: 'job interview recruitment office',
-  education: 'classroom teacher students',
-  realestate: 'commercial property building',
-  energy: 'renewable energy solar installation',
-  agriculture: 'modern farming agricultural field',
-  publicsector: 'government office public service',
+  business: 'entrepreneur startup team meeting',
+  finance: 'bank office professional financial',
+  technology: 'software developer laptop coding',
+  healthcare: 'doctor clinic medical professional',
+  legal: 'lawyer desk legal documents',
+  marketing: 'marketing team brainstorm office',
+  hr: 'job interview office professional',
+  education: 'classroom teacher students learning',
+  realestate: 'commercial real estate property',
+  energy: 'renewable energy solar wind',
+  agriculture: 'farm harvest agriculture modern',
+  publicsector: 'government public service office',
 };
 
-// Fetch a curated hero image by Unsplash photo ID
-async function fetchUnsplashById(photoId: string): Promise<string | null> {
-  try {
-    const res = await fetch(
-      `https://api.unsplash.com/photos/${photoId}`,
-      { headers: { Authorization: `Client-ID ${process.env.UNSPLASH_ACCESS_KEY}` } }
-    );
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data?.urls?.regular || null;
-  } catch {
-    return null;
-  }
-}
-
-// Search Unsplash for case study image (first result)
+// Search Unsplash — returns first result for a given query
 async function fetchUnsplashSearch(query: string): Promise<string | null> {
   try {
     const res = await fetch(
@@ -185,11 +170,11 @@ export async function POST(req: NextRequest) {
     );
 
     // Fetch Unsplash images in parallel
-    const heroPhotoId = VERTICAL_HERO_PHOTO_IDS[verticalSlug];
-    const caseStudyKeyword = CASE_STUDY_PHOTO_KEYWORDS[verticalSlug] || `${vertical.name} professional office`;
+    const heroKeyword = VERTICAL_HERO_KEYWORDS[verticalSlug] || `${vertical.name} professional office`;
+    const caseStudyKeyword = CASE_STUDY_PHOTO_KEYWORDS[verticalSlug] || `${vertical.name} professional`;
 
     const [heroImage, caseStudyImage] = await Promise.all([
-      heroPhotoId ? fetchUnsplashById(heroPhotoId) : null,
+      fetchUnsplashSearch(heroKeyword),
       fetchUnsplashSearch(caseStudyKeyword),
     ]);
 
