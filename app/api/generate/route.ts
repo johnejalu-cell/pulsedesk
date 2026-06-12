@@ -13,49 +13,63 @@ const TIER_LIMITS: Record<string, number> = {
 };
 
 // Unsplash keyword map per vertical
-const VERTICAL_PHOTO_KEYWORDS: Record<string, string> = {
-  business: 'corporate boardroom meeting executives',
-  finance: 'financial district stock trading office',
-  technology: 'tech office developers computers screens',
-  healthcare: 'hospital doctors medical professionals',
-  legal: 'law firm lawyers office courtroom',
-  marketing: 'creative agency marketing team office',
-  hr: 'corporate team meeting workplace office',
-  education: 'university lecture hall students learning',
-  realestate: 'modern office building architecture cityscape',
-  energy: 'solar panels renewable energy installation',
-  agriculture: 'commercial farming crops fields harvest',
-  publicsector: 'government building parliament city hall',
+// Curated Unsplash photo IDs for hero — consistent, high quality, professional
+const VERTICAL_HERO_PHOTO_IDS: Record<string, string> = {
+  business: 'hpjSkU2UYSU',      // corporate boardroom
+  finance: 'uiKBysLKujI',       // financial trading screens
+  technology: 'M5tzZtFCOfs',    // tech developer screens
+  healthcare: '7jd3Y0aP7HY',    // medical professionals
+  legal: 'ICgNKxzaU_A',         // law books desk
+  marketing: 'OQMZwNd3ThU',     // creative agency whiteboard
+  hr: 'gMsnXqILjp4',            // team meeting office
+  education: 'WE_Kv_ZB1l0',     // lecture hall university
+  realestate: 'jdp-YmEBFaU',    // modern office building
+  energy: 'XGAZjOD8uto',        // solar panels landscape
+  agriculture: '8_NI1pr1T4s',   // crops farmland aerial
+  publicsector: 'gZB-i-dA6ns',  // government building exterior
 };
 
+// Search keywords for case study images (uses search API for variety)
 const CASE_STUDY_PHOTO_KEYWORDS: Record<string, string> = {
-  business: 'startup office team entrepreneur',
-  finance: 'banking finance professional office',
-  technology: 'software development coding startup',
-  healthcare: 'clinic hospital medical team',
-  legal: 'legal professional lawyer office',
-  marketing: 'digital marketing agency team',
-  hr: 'recruitment interview workplace',
-  education: 'classroom teaching students',
-  realestate: 'property development construction',
-  energy: 'energy infrastructure power plant',
-  agriculture: 'farm agriculture food production',
-  publicsector: 'public service government office',
+  business: 'entrepreneur startup office success',
+  finance: 'banking professional finance office',
+  technology: 'software developer coding laptop',
+  healthcare: 'medical clinic healthcare team',
+  legal: 'lawyer legal professional office',
+  marketing: 'digital marketing creative team',
+  hr: 'job interview recruitment office',
+  education: 'classroom teacher students',
+  realestate: 'commercial property building',
+  energy: 'renewable energy solar installation',
+  agriculture: 'modern farming agricultural field',
+  publicsector: 'government office public service',
 };
 
-async function fetchUnsplashImage(query: string): Promise<string | null> {
+// Fetch a curated hero image by Unsplash photo ID
+async function fetchUnsplashById(photoId: string): Promise<string | null> {
   try {
     const res = await fetch(
-      `https://api.unsplash.com/photos/random?query=${encodeURIComponent(query)}&orientation=landscape&content_filter=high`,
-      {
-        headers: {
-          Authorization: `Client-ID ${process.env.UNSPLASH_ACCESS_KEY}`,
-        },
-      }
+      `https://api.unsplash.com/photos/${photoId}`,
+      { headers: { Authorization: `Client-ID ${process.env.UNSPLASH_ACCESS_KEY}` } }
     );
     if (!res.ok) return null;
     const data = await res.json();
     return data?.urls?.regular || null;
+  } catch {
+    return null;
+  }
+}
+
+// Search Unsplash for case study image (first result)
+async function fetchUnsplashSearch(query: string): Promise<string | null> {
+  try {
+    const res = await fetch(
+      `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=1&orientation=landscape&content_filter=high`,
+      { headers: { Authorization: `Client-ID ${process.env.UNSPLASH_ACCESS_KEY}` } }
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data?.results?.[0]?.urls?.regular || null;
   } catch {
     return null;
   }
@@ -171,12 +185,12 @@ export async function POST(req: NextRequest) {
     );
 
     // Fetch Unsplash images in parallel
-    const heroKeyword = VERTICAL_PHOTO_KEYWORDS[verticalSlug] || `${vertical.name} africa professional`;
+    const heroPhotoId = VERTICAL_HERO_PHOTO_IDS[verticalSlug];
     const caseStudyKeyword = CASE_STUDY_PHOTO_KEYWORDS[verticalSlug] || `${vertical.name} professional office`;
 
     const [heroImage, caseStudyImage] = await Promise.all([
-      fetchUnsplashImage(heroKeyword),
-      fetchUnsplashImage(caseStudyKeyword),
+      heroPhotoId ? fetchUnsplashById(heroPhotoId) : null,
+      fetchUnsplashSearch(caseStudyKeyword),
     ]);
 
     // Attach images to issue content
