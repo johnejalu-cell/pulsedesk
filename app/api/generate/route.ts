@@ -14,18 +14,33 @@ const TIER_LIMITS: Record<string, number> = {
 
 // Unsplash keyword map per vertical
 const VERTICAL_PHOTO_KEYWORDS: Record<string, string> = {
-  business: 'business professionals africa',
-  finance: 'finance investment africa',
-  technology: 'technology innovation africa',
-  healthcare: 'healthcare medicine africa',
-  legal: 'law justice professional',
-  marketing: 'marketing brand strategy',
-  hr: 'human resources team workplace',
-  education: 'education learning africa',
-  realestate: 'real estate property africa',
-  energy: 'energy renewable africa',
-  agriculture: 'agriculture farming africa',
-  publicsector: 'government public sector africa',
+  business: 'corporate boardroom meeting executives',
+  finance: 'financial district stock trading office',
+  technology: 'tech office developers computers screens',
+  healthcare: 'hospital doctors medical professionals',
+  legal: 'law firm lawyers office courtroom',
+  marketing: 'creative agency marketing team office',
+  hr: 'corporate team meeting workplace office',
+  education: 'university lecture hall students learning',
+  realestate: 'modern office building architecture cityscape',
+  energy: 'solar panels renewable energy installation',
+  agriculture: 'commercial farming crops fields harvest',
+  publicsector: 'government building parliament city hall',
+};
+
+const CASE_STUDY_PHOTO_KEYWORDS: Record<string, string> = {
+  business: 'startup office team entrepreneur',
+  finance: 'banking finance professional office',
+  technology: 'software development coding startup',
+  healthcare: 'clinic hospital medical team',
+  legal: 'legal professional lawyer office',
+  marketing: 'digital marketing agency team',
+  hr: 'recruitment interview workplace',
+  education: 'classroom teaching students',
+  realestate: 'property development construction',
+  energy: 'energy infrastructure power plant',
+  agriculture: 'farm agriculture food production',
+  publicsector: 'public service government office',
 };
 
 async function fetchUnsplashImage(query: string): Promise<string | null> {
@@ -157,10 +172,7 @@ export async function POST(req: NextRequest) {
 
     // Fetch Unsplash images in parallel
     const heroKeyword = VERTICAL_PHOTO_KEYWORDS[verticalSlug] || `${vertical.name} africa professional`;
-    // Use industry context from the case study for a more relevant image
-    const caseStudyIndustry = vertical.name.toLowerCase();
-    const caseStudyCountry = issue.case_study?.country || profile?.country_name || 'africa';
-    const caseStudyKeyword = `${caseStudyIndustry} ${caseStudyCountry}`;
+    const caseStudyKeyword = CASE_STUDY_PHOTO_KEYWORDS[verticalSlug] || `${vertical.name} professional office`;
 
     const [heroImage, caseStudyImage] = await Promise.all([
       fetchUnsplashImage(heroKeyword),
