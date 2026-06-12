@@ -57,18 +57,23 @@ function SectionShell({ index, title, children }: { index: number; title: string
 
 function HeroSection({ data }: { data: any }) {
   return (
-    <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-6 text-white">
-      <p className="text-blue-200 text-xs font-semibold uppercase tracking-wider mb-2">Cover</p>
-      <h2 className="text-2xl font-bold mb-2">{data.headline}</h2>
-      {data.subheadline && <p className="text-blue-100 text-sm mb-3">{data.subheadline}</p>}
-      {data.summary && <p className="text-blue-50 text-sm leading-relaxed">{data.summary}</p>}
-      {data.tags?.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-4">
-          {data.tags.map((tag: string, i: number) => (
-            <span key={i} className="bg-white/20 text-white text-xs px-2 py-1 rounded-full">{tag}</span>
-          ))}
-        </div>
+    <div className="relative rounded-2xl overflow-hidden">
+      {data.image_url && (
+        <img src={data.image_url} alt={data.headline || 'Cover'} className="w-full h-48 object-cover" />
       )}
+      <div className={`${data.image_url ? 'absolute inset-0' : 'bg-gradient-to-br from-blue-600 to-blue-800'} bg-gradient-to-br from-blue-600/90 to-blue-800/90 p-6 text-white flex flex-col justify-end`}>
+        <p className="text-blue-200 text-xs font-semibold uppercase tracking-wider mb-2">Cover</p>
+        <h2 className="text-2xl font-bold mb-2">{data.headline}</h2>
+        {data.subheadline && <p className="text-blue-100 text-sm mb-3">{data.subheadline}</p>}
+        {data.summary && <p className="text-blue-50 text-sm leading-relaxed">{data.summary}</p>}
+        {data.tags?.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-4">
+            {data.tags.map((tag: string, i: number) => (
+              <span key={i} className="bg-white/20 text-white text-xs px-2 py-1 rounded-full">{tag}</span>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -112,6 +117,9 @@ function NewsSection({ data, index, title }: { data: any; index?: number; title?
 function CaseStudySection({ data, index }: { data: any; index: number }) {
   return (
     <SectionShell index={index} title="Case Study">
+      {data.image_url && (
+        <img src={data.image_url} alt={data.company || 'Case Study'} className="w-full h-36 object-cover rounded-xl mb-4" />
+      )}
       {data.company && (
         <div className="bg-blue-50 rounded-xl px-4 py-3 mb-4">
           <p className="text-blue-800 font-semibold text-sm">{data.company}</p>
