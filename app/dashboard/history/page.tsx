@@ -96,8 +96,10 @@ function NewsSection({ data, index, title }: { data: any; index?: number; title?
                 ? <MapPin className="h-3.5 w-3.5 text-green-500 mt-0.5 flex-shrink-0" />
                 : <Globe className="h-3.5 w-3.5 text-blue-400 mt-0.5 flex-shrink-0" />
               }
-              <p className="text-sm font-semibold text-slate-800">{item.title || item.name}</p>
+              <p className="text-sm font-semibold text-slate-800">{item.title || item.name || item.jurisdiction}</p>
             </div>
+            {item.update && <p className="text-sm text-slate-600 leading-relaxed ml-5 mb-1">{item.update}</p>}
+            {item.impact && <p className="text-sm text-slate-500 leading-relaxed ml-5 italic">{item.impact}</p>}
             {item.summary && <p className="text-sm text-slate-500 leading-relaxed ml-5">{item.summary}</p>}
             {item.source && <p className="text-xs text-slate-400 mt-1 ml-5">Source: {item.source}</p>}
           </div>
