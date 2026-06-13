@@ -48,9 +48,11 @@ export default function AdminPage() {
 
   useEffect(() => {
     async function load() {
-      const { data: { user } } = await supabase.auth.getUser();
+      // Try session first, then getUser as fallback
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user;
       if (!user || user.email !== ADMIN_EMAIL) {
-        router.push('/dashboard');
+        router.push('/login');
         return;
       }
 
