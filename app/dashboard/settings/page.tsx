@@ -52,7 +52,10 @@ export default function SettingsPage() {
     }).eq('id', user.id);
     setSaving(false);
     setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    // Reload after short delay so user sees the 'Saved!' confirmation
+    setTimeout(() => {
+      window.location.href = '/dashboard';
+    }, 1000);
   }
 
   if (loading) return <div className="p-8 text-slate-400">Loading...</div>;
@@ -111,16 +114,16 @@ export default function SettingsPage() {
       <button
         onClick={saveProfile}
         disabled={saving}
-        className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors"
+        className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors disabled:opacity-60"
       >
-        {saved ? 'Saved!' : saving ? 'Saving...' : 'Save changes'}
+        {saved ? 'Saved! Redirecting...' : saving ? 'Saving...' : 'Save changes'}
       </button>
 
       {/* Account info */}
       <div className="bg-white border border-slate-200 rounded-2xl p-6 mt-6">
         <h2 className="font-semibold text-slate-900 mb-3">Account</h2>
         <p className="text-sm text-slate-500">{profile?.email}</p>
-        <p className="text-sm text-slate-400 mt-1">Free plan · To add payments, Flutterwave integration coming soon</p>
+        <p className="text-sm text-slate-400 mt-1">Manage your subscription — payment integration coming soon</p>
       </div>
     </div>
   );
