@@ -16,22 +16,22 @@ const TIER_LIMITS: Record<string, number> = {
 // Hardcoded Unsplash image URLs per vertical — curated, consistent, professional
 // Format: https://images.unsplash.com/photo-{id}?w=1200&q=80&fit=crop
 const VERTICAL_HERO_IMAGES: Record<string, string> = {
-  business:     'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=1200&q=80&fit=crop',  // african professionals boardroom
-  finance:      'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1200&q=80&fit=crop',  // trading screens
-  technology:   'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&q=80&fit=crop',  // server room
+  business:     'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1200&q=80&fit=crop',  // coworking space
+  finance:      'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?w=1200&q=80&fit=crop',  // stock market data
+  technology:   'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=1200&q=80&fit=crop',  // AI robot technology
   healthcare:   'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1200&q=80&fit=crop',  // hospital
   legal:        'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1200&q=80&fit=crop',  // law books
-  marketing:    'https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&q=80&fit=crop',  // agency whiteboard
-  hr:           'https://images.unsplash.com/photo-1653669486816-660abac02954?w=1200&q=80&fit=crop',  // black woman office holding binder
+  marketing:    'https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&q=80&fit=crop',  // agency whiteboard (kept)
+  hr:           'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=1200&q=80&fit=crop',  // diverse professional
   education:    'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=1200&q=80&fit=crop',  // library
   realestate:   'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1200&q=80&fit=crop',  // glass building
   energy:       'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&fit=crop',  // solar farm
-  agriculture:  'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1200&q=80&fit=crop',  // crop fields
+  agriculture:  'https://images.unsplash.com/photo-1495107334309-fcf20504a5ab?w=1200&q=80&fit=crop',  // coffee plantation africa
   publicsector: 'https://images.unsplash.com/photo-1555848962-6e79363ec58f?w=1200&q=80&fit=crop',  // government building
 };
 
 const VERTICAL_CASE_STUDY_IMAGES: Record<string, string> = {
-  business:     'https://images.unsplash.com/photo-1655720357872-ce227e4164ba?w=1200&q=80&fit=crop',  // african team couch laptop
+  business:     'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1200&q=80&fit=crop',  // diverse team discussion
   finance:      'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200&q=80&fit=crop',  // finance desk
   technology:   'https://images.unsplash.com/photo-1573166953836-06864dc70a21?w=1200&q=80&fit=crop',  // black woman macbook coding
   healthcare:   'https://images.unsplash.com/photo-1551190822-a9333d879b1f?w=1200&q=80&fit=crop',  // medical team
