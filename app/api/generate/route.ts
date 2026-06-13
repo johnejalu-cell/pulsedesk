@@ -114,7 +114,7 @@ export async function POST(req: NextRequest) {
 
   const { data: vertical } = await serviceSupabase
     .from('verticals')
-    .select('name, slug')
+    .select('name, slug, hero_image_url, case_study_image_url')
     .eq('slug', verticalSlug)
     .single();
 
@@ -156,9 +156,9 @@ export async function POST(req: NextRequest) {
       profile?.country_name || 'Global'
     );
 
-    // Use hardcoded curated images — no API calls needed
-    const heroImage = VERTICAL_HERO_IMAGES[verticalSlug] || null;
-    const caseStudyImage = VERTICAL_CASE_STUDY_IMAGES[verticalSlug] || null;
+    // Fetch images from Supabase verticals table
+    const heroImage = vertical.hero_image_url || null;
+    const caseStudyImage = vertical.case_study_image_url || null;
 
     // Attach images to issue content
     if (heroImage) issue.hero.image_url = heroImage;
