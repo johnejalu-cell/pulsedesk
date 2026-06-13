@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { TrendingUp, LayoutDashboard, Settings, Menu, X, LogOut, Clock } from 'lucide-react';
+import { TrendingUp, LayoutDashboard, Settings, Menu, X, LogOut, Clock, Shield, Home } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
@@ -44,6 +44,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/dashboard/history', label: 'History', icon: Clock },
     { href: '/dashboard/settings', label: 'Settings', icon: Settings },
+    { href: '/admin', label: 'Admin', icon: Shield, adminOnly: true },
+    { href: '/', label: 'Home', icon: Home },
   ];
 
   return (
@@ -57,7 +59,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
         {/* Desktop nav links */}
         <div className="hidden lg:flex items-center gap-1">
-          {navItems.map(n => (
+          {navItems.filter(n => !n.adminOnly || profile?.email === 'john.ejalu@gmail.com').map(n => (
             <Link
               key={n.href}
               href={n.href}
@@ -90,7 +92,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Mobile dropdown menu */}
       {menuOpen && (
         <div className="lg:hidden bg-white border-b border-slate-200 px-4 py-3 space-y-1 sticky top-14 z-40 shadow-sm">
-          {navItems.map(n => (
+          {navItems.filter(n => !n.adminOnly || profile?.email === 'john.ejalu@gmail.com').map(n => (
             <Link
               key={n.href}
               href={n.href}
@@ -145,7 +147,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         {/* Desktop sidebar */}
         <aside className="hidden lg:flex w-64 flex-shrink-0 bg-white border-r border-slate-200 flex-col min-h-screen sticky top-14">
           <nav className="flex-1 px-3 py-4 space-y-1">
-            {navItems.map(n => (
+            {navItems.filter(n => !n.adminOnly || profile?.email === 'john.ejalu@gmail.com').map(n => (
               <Link
                 key={n.href}
                 href={n.href}
