@@ -22,7 +22,7 @@ const VERTICAL_HERO_IMAGES: Record<string, string> = {
   healthcare:   'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1200&q=80&fit=crop',  // hospital
   legal:        'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1200&q=80&fit=crop',  // law books
   marketing:    'https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&q=80&fit=crop',  // agency whiteboard (kept)
-  hr:           'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=1200&q=80&fit=crop',  // diverse professional
+  hr:           'https://images.unsplash.com/photo-1653669486816-660abac02954?w=1200&q=80&fit=crop',  // black woman office (set1 img1)
   education:    'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=1200&q=80&fit=crop',  // library
   realestate:   'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1200&q=80&fit=crop',  // glass building
   energy:       'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1200&q=80&fit=crop',  // solar farm
@@ -37,7 +37,7 @@ const VERTICAL_CASE_STUDY_IMAGES: Record<string, string> = {
   healthcare:   'https://images.unsplash.com/photo-1551190822-a9333d879b1f?w=1200&q=80&fit=crop',  // medical team
   legal:        'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=1200&q=80&fit=crop',  // legal books
   marketing:    'https://images.unsplash.com/photo-1573497019418-b400bb3ab074?w=1200&q=80&fit=crop',  // black professional woman smiling office
-  hr:           'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=1200&q=80&fit=crop',  // black professional interview
+  hr:           'https://images.unsplash.com/photo-1568992687947-868a62a9f521?w=1200&q=80&fit=crop',  // professional interview (set2 img2)
   education:    'https://images.unsplash.com/photo-1563132337-f159f484226c?w=1200&q=80&fit=crop',  // african woman orange blazer professional
   realestate:   'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200&q=80&fit=crop',  // property
   energy:       'https://images.unsplash.com/photo-1466611653911-95081537e5b7?w=1200&q=80&fit=crop',  // wind energy
