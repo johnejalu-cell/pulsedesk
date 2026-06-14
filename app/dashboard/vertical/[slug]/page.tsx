@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
 export default function VerticalPage({ params }: { params: { slug: string } }) {
@@ -11,6 +11,40 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState('');
   const [activeSection, setActiveSection] = useState('industry_news');
+  const [progress, setProgress] = useState(0);
+  const [progressStep, setProgressStep] = useState('');
+  const progressInterval = useRef<NodeJS.Timeout | null>(null);
+
+  const PROGRESS_STEPS = [
+    { pct: 10, label: 'Scanning global news sources...' },
+    { pct: 25, label: 'Analysing market trends...' },
+    { pct: 40, label: 'Researching local context...' },
+    { pct: 55, label: 'Building case study...' },
+    { pct: 70, label: 'Generating expert opinion...' },
+    { pct: 82, label: 'Compiling regulatory updates...' },
+    { pct: 92, label: 'Finalising your issue...' },
+    { pct: 98, label: 'Almost ready...' },
+  ];
+
+  function startProgress() {
+    setProgress(0);
+    setProgressStep('Preparing your magazine...');
+    let stepIndex = 0;
+    progressInterval.current = setInterval(() => {
+      if (stepIndex < PROGRESS_STEPS.length) {
+        setProgress(PROGRESS_STEPS[stepIndex].pct);
+        setProgressStep(PROGRESS_STEPS[stepIndex].label);
+        stepIndex++;
+      }
+    }, 1800);
+  }
+
+  function stopProgress() {
+    if (progressInterval.current) clearInterval(progressInterval.current);
+    setProgress(100);
+    setProgressStep('Issue ready!');
+    setTimeout(() => { setProgress(0); setProgressStep(''); }, 1000);
+  }
 
   useEffect(() => {
     const supabase = createClient();
@@ -36,6 +70,7 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
   async function generate() {
     setGenerating(true);
     setError('');
+    startProgress();
     try {
       const supabase = createClient();
       const { data: { session } } = await supabase.auth.getSession();
@@ -49,8 +84,10 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Generation failed');
+      stopProgress();
       setIssue(data.issue);
     } catch (e: any) {
+      stopProgress();
       setError(e.message);
     } finally {
       setGenerating(false);
@@ -83,6 +120,22 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
           {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
         </div>
       </div>
+
+      {/* Progress indicator */}
+      {generating && progress > 0 && (
+        <div className="mx-4 mb-2 bg-white border border-slate-200 rounded-2xl p-4">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs font-medium text-slate-600">{progressStep}</p>
+            <p className="text-xs text-slate-400">{progress}%</p>
+          </div>
+          <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-blue-600 rounded-full transition-all duration-700 ease-out"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </div>
+      )}
 
       {issue ? (
         <div className="space-y-4">
