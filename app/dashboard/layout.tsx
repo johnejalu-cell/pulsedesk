@@ -50,7 +50,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <nav className="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between sticky top-0 z-50">
         <Link href="/dashboard" className="flex items-center gap-2">
           <TrendingUp className="h-5 w-5 text-blue-600" />
-          <span className="font-bold text-slate-900">PulseDesk</span>
+          <span className="font-bold text-slate-900">Pulse Department</span>
         </Link>
 
         {/* Desktop nav */}
