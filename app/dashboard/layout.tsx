@@ -64,7 +64,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <Settings className="h-4 w-4" />Settings
           </Link>
           {isAdmin && (
-            <Link href="/admin" className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-colors ${pathname === '/admin' ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-50'}`}>
+            <Link href="/dashboard/admin" className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-colors ${pathname === '/dashboard/admin' ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-50'}`}>
               <Shield className="h-4 w-4" />Admin
             </Link>
           )}
@@ -95,7 +95,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <Settings className="h-4 w-4" />Settings
           </Link>
           {isAdmin && (
-            <Link href="/admin" onClick={() => setMenuOpen(false)} className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${pathname === '/admin' ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-50'}`}>
+            <Link href="/dashboard/admin" onClick={() => setMenuOpen(false)} className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${pathname === '/dashboard/admin' ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-50'}`}>
               <Shield className="h-4 w-4" />Admin
             </Link>
           )}
@@ -142,7 +142,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <Settings className="h-4 w-4" />Settings
             </Link>
             {isAdmin && (
-              <Link href="/admin" className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${pathname === '/admin' ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-50'}`}>
+              <Link href="/dashboard/admin" className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${pathname === '/dashboard/admin' ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-50'}`}>
                 <Shield className="h-4 w-4" />Admin
               </Link>
             )}
