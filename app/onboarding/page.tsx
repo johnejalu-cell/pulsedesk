@@ -22,6 +22,21 @@ export default function OnboardingPage() {
   const [search, setSearch] = useState('');
 
   useEffect(() => {
+    // Redirect if already onboarded
+    async function check() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { window.location.href = '/login'; return; }
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('onboarded')
+        .eq('id', session.user.id)
+        .single();
+      if (profile?.onboarded) {
+        window.location.href = '/dashboard';
+      }
+    }
+    check();
+
     supabase.from('verticals').select('*').eq('is_active', true).order('sort_order').then(({ data }) => {
       if (data) setVerticals(data);
     });
@@ -39,17 +54,24 @@ export default function OnboardingPage() {
 
   async function finish() {
     setSaving(true);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { window.location.href = '/login'; return; }
 
-    await supabase.from('profiles').update({
+    const { error } = await supabase.from('profiles').update({
       country,
       country_name: countryName,
       professions,
       onboarded: true,
-    }).eq('id', user.id);
+    }).eq('id', session.user.id);
 
-    router.push('/dashboard');
+    if (error) {
+      console.error('Onboarding save error:', error);
+      setSaving(false);
+      return;
+    }
+
+    // Use window.location for a full reload so dashboard picks up new profile
+    window.location.href = '/dashboard';
   }
 
   const stepIndex = STEPS.indexOf(step);
@@ -198,7 +220,7 @@ export default function OnboardingPage() {
             </div>
 
             <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-6 text-sm text-blue-700">
-              Your free Starter plan includes 1 vertical and 1 fresh issue per day. Upgrade to Pro to unlock all {professions.length} verticals you selected.
+              Your free Starter plan includes 1 vertical and 1 fresh issue per day. Upgrade to unlock all {professions.length} verticals you selected.
             </div>
 
             <div className="flex gap-3">
@@ -220,3 +242,4 @@ export default function OnboardingPage() {
     </div>
   );
 }
+
