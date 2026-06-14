@@ -84,7 +84,7 @@ export default function OnboardingPage() {
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
             <TrendingUp className="h-6 w-6 text-blue-600" />
-            <span className="font-bold text-slate-900">PulseDesk</span>
+            <span className="font-bold text-slate-900">Pulse Department</span>
           </div>
           <span className="text-sm text-slate-500">Step {stepIndex + 1} of {STEPS.length}</span>
         </div>
