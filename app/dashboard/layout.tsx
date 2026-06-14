@@ -38,6 +38,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }, []);
 
   async function signOut() {
+    if (!confirm('Are you sure you want to sign out?')) return;
     const supabase = createClient();
     await supabase.auth.signOut();
     window.location.href = '/';
