@@ -69,7 +69,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <TrendingUp className="h-6 w-6 text-blue-600" />
-            <span className="font-bold text-xl text-slate-900">Pulse Department</span>
+            <span className="font-bold text-base text-slate-900 whitespace-nowrap">Pulse Department</span>
           </div>
           <div className="flex items-center gap-4">
             <Link href="/login" className="text-sm text-slate-600 hover:text-slate-900 transition-colors">
@@ -218,7 +218,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5 text-blue-600" />
-            <span className="font-semibold text-slate-900">Pulse Department</span>
+            <span className="font-semibold text-sm text-slate-900 whitespace-nowrap">Pulse Department</span>
           </div>
           <p className="text-sm text-slate-400">© {new Date().getFullYear()} Pulse Department. Professional intelligence, globally sourced.</p>
         </div>
