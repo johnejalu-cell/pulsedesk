@@ -39,7 +39,7 @@ export default function LoginPage() {
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 text-blue-600 mb-6">
             <TrendingUp className="h-7 w-7" />
-            <span className="text-2xl font-bold text-slate-900">Pulse Department</span>
+            <span className="text-xl font-bold text-slate-900 whitespace-nowrap">Pulse Department</span>
           </Link>
           <h1 className="text-2xl font-bold text-slate-900">Welcome back</h1>
           <p className="text-slate-500 mt-1">Sign in to your professional intelligence portal</p>
