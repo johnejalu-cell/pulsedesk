@@ -20,7 +20,7 @@ export async function generateMagazineIssue(
     max_tokens: 8192,
     tools: [
       {
-        type: 'web_search_20250305',
+        type: 'web_search_20260209',
         name: 'web_search',
       } as any,
     ],
