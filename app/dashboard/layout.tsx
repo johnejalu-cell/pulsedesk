@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { TrendingUp, LayoutDashboard, Settings, Menu, X, LogOut, Clock, Shield, Home } from 'lucide-react';
+import { TrendingUp, LayoutDashboard, Settings, Menu, X, LogOut, Clock, Shield, Home, CreditCard } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
@@ -64,6 +64,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <Link href="/dashboard/settings" className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-colors ${pathname === '/dashboard/settings' ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-50'}`}>
             <Settings className="h-4 w-4" />Settings
           </Link>
+          <Link href="/pricing" className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-colors ${pathname === '/pricing' ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-50'}`}>
+            <CreditCard className="h-4 w-4" />Pricing
+          </Link>
           {isAdmin && (
             <Link href="/dashboard/admin" className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-colors ${pathname === '/dashboard/admin' ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-50'}`}>
               <Shield className="h-4 w-4" />Admin
@@ -94,6 +97,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </Link>
           <Link href="/dashboard/settings" onClick={() => setMenuOpen(false)} className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${pathname === '/dashboard/settings' ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-50'}`}>
             <Settings className="h-4 w-4" />Settings
+          </Link>
+          <Link href="/pricing" onClick={() => setMenuOpen(false)} className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${pathname === '/pricing' ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-50'}`}>
+            <CreditCard className="h-4 w-4" />Pricing
           </Link>
           {isAdmin && (
             <Link href="/dashboard/admin" onClick={() => setMenuOpen(false)} className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${pathname === '/dashboard/admin' ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-50'}`}>
@@ -141,6 +147,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </Link>
             <Link href="/dashboard/settings" className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${pathname === '/dashboard/settings' ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-50'}`}>
               <Settings className="h-4 w-4" />Settings
+            </Link>
+            <Link href="/pricing" className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${pathname === '/pricing' ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-50'}`}>
+              <CreditCard className="h-4 w-4" />Pricing
             </Link>
             {isAdmin && (
               <Link href="/dashboard/admin" className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${pathname === '/dashboard/admin' ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-50'}`}>
