@@ -206,7 +206,7 @@ export default function LandingPage() {
                   ))}
                 </ul>
                 <Link
-                  href="/signup"
+                  href={plan.name === 'Starter' ? '/signup' : '/pricing'}
                   className={`block text-center py-3 rounded-xl font-semibold transition-colors ${
                     plan.highlight
                       ? 'bg-white text-blue-600 hover:bg-blue-50'
