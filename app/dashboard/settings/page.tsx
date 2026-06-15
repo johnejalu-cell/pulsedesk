@@ -123,7 +123,18 @@ export default function SettingsPage() {
       <div className="bg-white border border-slate-200 rounded-2xl p-6 mt-6">
         <h2 className="font-semibold text-slate-900 mb-3">Account</h2>
         <p className="text-sm text-slate-500">{profile?.email}</p>
-        <p className="text-sm text-slate-400 mt-1">Manage your subscription — payment integration coming soon</p>
+        <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
+          <div>
+            <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">Current Plan</p>
+            <p className="text-sm font-semibold text-slate-900 capitalize">{profile?.subscription_tier || 'Starter'}</p>
+          </div>
+          <a
+            href="/pricing"
+            className="text-sm bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-colors font-medium"
+          >
+            Upgrade plan
+          </a>
+        </div>
       </div>
     </div>
   );
