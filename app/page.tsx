@@ -69,7 +69,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <TrendingUp className="h-6 w-6 text-blue-600" />
-            <span className="font-bold text-base text-slate-900 whitespace-nowrap">Pulse Department</span>
+            <span className="font-bold text-sm text-slate-900 whitespace-nowrap">Pulse Department</span>
           </div>
           <div className="hidden sm:flex items-center gap-4">
             <Link href="/login" className="text-sm text-slate-600 hover:text-slate-900 transition-colors">
