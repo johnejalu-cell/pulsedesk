@@ -18,14 +18,32 @@ export async function generateMagazineIssue(
   const message = await anthropic.messages.create({
     model,
     max_tokens: 8192,
-    messages: [{ role: 'user', content: prompt }],
+    tools: [
+      {
+        type: 'web_search_20250305',
+        name: 'web_search',
+      } as any,
+    ],
+    messages: [
+      {
+        role: 'user',
+        content: prompt,
+      },
+    ],
   });
 
   const tokensUsed = message.usage.input_tokens + message.usage.output_tokens;
-  const rawText = message.content[0].type === 'text' ? message.content[0].text : '';
+
+  // Extract all text blocks from response (web search may produce multiple content blocks)
+  const rawText = message.content
+    .filter((block: any) => block.type === 'text')
+    .map((block: any) => block.text)
+    .join('');
 
   // Aggressively strip all markdown fences and backticks
   const cleaned = rawText
+    .replace(/```json\n?/g, '')
+    .replace(/```\n?/g, '')
     .replace(/`/g, '')
     .replace(/^json\s*/i, '')
     .trim();
@@ -34,7 +52,17 @@ export async function generateMagazineIssue(
   try {
     parsedContent = JSON.parse(cleaned);
   } catch {
-    throw new Error('AI returned invalid JSON. Raw: ' + rawText.slice(0, 200));
+    // Try to extract JSON from the text if it's wrapped in other content
+    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      try {
+        parsedContent = JSON.parse(jsonMatch[0]);
+      } catch {
+        throw new Error('AI returned invalid JSON. Raw: ' + rawText.slice(0, 200));
+      }
+    } else {
+      throw new Error('AI returned invalid JSON. Raw: ' + rawText.slice(0, 200));
+    }
   }
 
   const now = new Date().toISOString();
@@ -51,3 +79,4 @@ export async function generateMagazineIssue(
 }
 
 export { anthropic };
+
