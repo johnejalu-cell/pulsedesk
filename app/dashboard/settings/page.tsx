@@ -12,6 +12,8 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [subscription, setSubscription] = useState<any>(null);
+  const [freeIssuesUsed, setFreeIssuesUsed] = useState(0);
 
   useEffect(() => {
     const supabase = createClient();
@@ -29,6 +31,14 @@ export default function SettingsPage() {
       setCountry(prof?.country || '');
       setCountryName(prof?.country_name || '');
       setProfessions(prof?.professions || []);
+      setFreeIssuesUsed(prof?.free_issues_used || 0);
+
+      const { data: sub } = await supabase
+        .from('subscriptions')
+        .select('tier')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      setSubscription(sub);
       setLoading(false);
     }
     load();
@@ -123,17 +133,30 @@ export default function SettingsPage() {
       <div className="bg-white border border-slate-200 rounded-2xl p-6 mt-6">
         <h2 className="font-semibold text-slate-900 mb-3">Account</h2>
         <p className="text-sm text-slate-500">{profile?.email}</p>
-        <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
-          <div>
-            <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">Current Plan</p>
-            <p className="text-sm font-semibold text-slate-900 capitalize">{profile?.subscription_tier || 'Starter'}</p>
+        <div className="mt-3 pt-3 border-t border-slate-100">
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">Current Plan</p>
+              <p className="text-sm font-semibold text-slate-900 capitalize">
+                {subscription?.tier || 'Free'}
+              </p>
+            </div>
+            <a
+              href="/pricing"
+              className="text-sm bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-colors font-medium"
+            >
+              {subscription?.tier ? 'Change plan' : 'Subscribe'}
+            </a>
           </div>
-          <a
-            href="/pricing"
-            className="text-sm bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-colors font-medium"
-          >
-            Upgrade plan
-          </a>
+          {!subscription?.tier && (
+            <div className="bg-blue-50 rounded-xl px-4 py-3">
+              <p className="text-xs text-blue-700 font-medium">
+                {3 - freeIssuesUsed > 0
+                  ? `${3 - freeIssuesUsed} free ${3 - freeIssuesUsed === 1 ? 'issue' : 'issues'} remaining`
+                  : 'Free issues used — subscribe to continue'}
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>
