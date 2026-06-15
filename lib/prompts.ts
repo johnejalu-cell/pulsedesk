@@ -1,156 +1,136 @@
-// lib/prompts.ts — Master AI prompt templates for PulseDesk
+// lib/prompts.ts — Master AI prompt templates for Pulse Department
 
 export interface ContentPromptParams {
-  vertical: string;           // e.g. "Technology & IT"
-  verticalSlug: string;       // e.g. "technology"
-  country: string;            // e.g. "Uganda"
-  countryCode: string;        // e.g. "UG"
-  region?: string;            // e.g. "East Africa"
-  currentMonth: string;       // e.g. "June 2025"
+  vertical: string;
+  verticalSlug: string;
+  country: string;
+  countryCode: string;
+  region?: string;
+  currentMonth: string;
 }
 
 export function buildMasterPrompt(params: ContentPromptParams): string {
-  const { vertical, country, region, currentMonth, verticalSlug } = params;
-  const regionNote = region ? ` (${region})` : '';
+  const { vertical, country, countryCode, region, currentMonth } = params;
 
-  return `You are the editorial AI for PulseDesk, a professional intelligence platform. Your task is to generate a complete, authoritative magazine issue for the "${vertical}" vertical.
+  return `You are the editorial AI for Pulse Department, a professional intelligence magazine.
 
-CONTENT MIX RULE: 70% of content must be globally relevant insights, trends, and best practices. 30% must be specifically localized to ${country}${regionNote} — referencing local market conditions, regulations, companies, or regional context where appropriate.
+IMPORTANT: You have access to web search. Use it actively to find REAL, CURRENT information before writing each section. Search for:
+- Latest ${vertical} news from the past 2-4 weeks
+- Current ${vertical} trends and developments in ${currentMonth}
+- Real ${vertical} news and developments specific to ${country}
+- Actual regulatory updates affecting ${vertical} professionals
+- Real market data and statistics for ${vertical}
+- Genuine case studies or company examples in ${vertical}
 
-CURRENT PERIOD: ${currentMonth}
+Generate a complete magazine issue for ${vertical} professionals based in ${country} (${countryCode})${region ? `, ${region}` : ''} for ${currentMonth}.
 
-TONE: Authoritative, analytical, and actionable. Write for senior professionals and decision-makers. Avoid filler; every sentence should add value.
+The content must be 70% global and 30% local to ${country}.
 
-OUTPUT FORMAT: Respond ONLY with a valid JSON object (no markdown, no preamble, no backticks). Follow this exact structure:
+CRITICAL: Return ONLY a valid JSON object. No markdown, no backticks, no explanation. Just the raw JSON.
 
+The JSON must follow this exact structure:
 {
   "hero": {
-    "headline": "A compelling, specific headline for this issue (not generic)",
-    "subheadline": "One sharp sentence expanding the headline",
-    "summary": "2-3 sentence executive summary of this issue's key themes",
+    "headline": "compelling main headline based on real current news",
+    "subheadline": "supporting line",
+    "summary": "2-3 sentence overview of this issue based on real developments",
     "tags": ["tag1", "tag2", "tag3", "tag4"]
   },
   "industry_news": {
     "items": [
       {
-        "title": "News headline",
-        "summary": "2-3 sentence summary of the development and its significance",
-        "source": "Type of source (e.g. Industry body, Government, Market report)",
+        "title": "Real news headline",
+        "summary": "Summary based on actual recent news",
+        "source": "Publication name",
         "local": false
       },
-      { "title": "...", "summary": "...", "source": "...", "local": false },
-      { "title": "...", "summary": "...", "source": "...", "local": true },
-      { "title": "...", "summary": "...", "source": "...", "local": true },
-      { "title": "...", "summary": "...", "source": "...", "local": false }
+      {
+        "title": "Real local news headline specific to ${country}",
+        "summary": "Summary based on actual ${country} ${vertical} news",
+        "source": "Local publication or official source",
+        "local": true
+      }
     ]
   },
   "trends": {
-    "title": "Trends & Analysis: [specific trend topic]",
-    "subtitle": "One sentence framing the trend",
-    "content": "3-4 paragraph deep analysis of the dominant trend in ${vertical} right now. Be specific with data points, examples, and implications.",
-    "bullets": [
-      "Key implication 1 (be specific)",
-      "Key implication 2",
-      "Key implication 3",
-      "Key implication 4"
-    ],
+    "title": "Trend title grounded in real current developments",
+    "subtitle": "Compelling subtitle",
+    "content": "4-5 paragraph deep analysis based on real trends",
+    "bullets": ["Real data point 1", "Real data point 2", "Real data point 3", "Real data point 4"],
     "quote": {
-      "text": "A realistic, insightful quote that a senior professional in this field might say about the trend",
-      "attribution": "Realistic name, Title, Organization"
+      "text": "Illustrative quote representing expert thinking on this trend",
+      "attribution": "Illustrative expert name and role"
     }
   },
   "best_practices": {
-    "title": "Best Practice: [specific, actionable topic]",
-    "subtitle": "What professionals will learn",
-    "content": "2-3 paragraphs introducing the best practice and why it matters now",
-    "steps": [
-      "Step 1: [specific action with brief explanation]",
-      "Step 2: [specific action]",
-      "Step 3: [specific action]",
-      "Step 4: [specific action]",
-      "Step 5: [specific action]"
-    ],
-    "cta": "One sentence on how to start implementing this"
+    "title": "Best practice title",
+    "subtitle": "Subtitle",
+    "content": "Introduction paragraph",
+    "steps": ["Step 1", "Step 2", "Step 3", "Step 4", "Step 5"],
+    "cta": "Call to action"
   },
   "case_study": {
-    "company": "A realistic company name (can be fictional but plausible for ${country} or globally)",
-    "country": "${country} or a relevant country",
-    "challenge": "2-3 sentences describing the business challenge",
-    "solution": "2-3 sentences describing what they did",
-    "result": "Specific, quantified outcomes (use realistic numbers)",
-    "lesson": "The transferable lesson for professionals"
+    "company": "Real or illustrative company name",
+    "country": "Country",
+    "challenge": "The challenge they faced",
+    "solution": "How they addressed it",
+    "result": "Measurable outcomes",
+    "lesson": "Key takeaway for ${vertical} professionals"
   },
   "leadership": {
-    "title": "Leadership Lens: [specific topic]",
-    "subtitle": "One sentence framing",
-    "content": "3-4 paragraphs on leadership, career, or professional development relevant to ${vertical} professionals. Should feel like advice from a top mentor.",
-    "bullets": [
-      "Actionable insight 1",
-      "Actionable insight 2",
-      "Actionable insight 3"
-    ]
+    "title": "Leadership insight title",
+    "subtitle": "Subtitle",
+    "content": "3-4 paragraphs of leadership insight",
+    "bullets": ["Insight 1", "Insight 2", "Insight 3"]
   },
   "regulatory": {
-    "summary": "2-sentence overview of the regulatory environment in ${vertical} this period",
+    "summary": "Overview of current regulatory landscape based on real developments",
     "items": [
       {
-        "jurisdiction": "Global / International",
-        "update": "Specific regulatory development",
-        "impact": "What this means for practitioners"
-      },
-      {
-        "jurisdiction": "${country}",
-        "update": "Specific local regulatory update",
-        "impact": "Practical impact for ${country}-based professionals"
-      },
-      {
-        "jurisdiction": "Regional / Industry body",
-        "update": "Another update",
-        "impact": "Impact"
+        "jurisdiction": "Global / Regional / ${country}",
+        "update": "Description of real or recent regulatory development",
+        "impact": "What this means for ${vertical} professionals"
       }
     ]
   },
   "market_data": {
-    "summary": "2-sentence context for the data shown",
-    "chart_title": "Descriptive chart title relevant to ${vertical}",
+    "chart_title": "Descriptive title for the data",
+    "summary": "Context for the data based on real market conditions",
     "data_points": [
-      { "label": "Category 1", "value": 0, "change": 0, "trend": "up" },
-      { "label": "Category 2", "value": 0, "change": 0, "trend": "flat" },
-      { "label": "Category 3", "value": 0, "change": 0, "trend": "up" },
-      { "label": "Category 4", "value": 0, "change": 0, "trend": "down" },
-      { "label": "Category 5", "value": 0, "change": 0, "trend": "up" }
+      {"label": "Metric name", "value": "Value with unit"},
+      {"label": "Metric name", "value": "Value with unit"},
+      {"label": "Metric name", "value": "Value with unit"},
+      {"label": "Metric name", "value": "Value with unit"},
+      {"label": "Metric name", "value": "Value with unit"}
     ]
   },
   "opinion": {
-    "title": "Opinion: [provocative, specific title]",
-    "author": "Realistic name for a ${vertical} thought leader",
-    "position": "Realistic title and affiliation",
-    "body": "4-5 paragraphs of a well-argued opinion piece. Take a clear, defensible position. Reference real industry dynamics. End with a call to action for the profession."
+    "title": "Opinion piece title",
+    "author": "Expert Name",
+    "position": "Title, Organisation",
+    "body": "3-4 paragraphs of editorial opinion grounded in real current issues"
   },
   "resources": {
     "tools": [
-      { "name": "Tool/Platform Name", "description": "What it does and why it matters for ${verticalSlug} professionals", "url": "https://example.com" },
-      { "name": "Tool 2", "description": "...", "url": "https://example.com" },
-      { "name": "Tool 3", "description": "...", "url": "https://example.com" }
-    ],
-    "reading": [
-      { "title": "Recommended Book or Report Title", "type": "Book" },
-      { "title": "Another Resource", "type": "Report" },
-      { "title": "Another Resource", "type": "Framework" }
+      {"name": "Tool name", "description": "What it does and why it matters now"},
+      {"name": "Tool name", "description": "What it does and why it matters now"}
     ],
     "events": [
-      { "name": "Relevant industry event or conference", "date": "Q3 ${currentMonth.split(' ')[1]}", "location": "Location or Online" }
+      {"name": "Event name", "date": "Date/period", "description": "Why it matters"},
+      {"name": "Event name", "date": "Date/period", "description": "Why it matters"}
+    ],
+    "reading": [
+      {"title": "Article or report title", "author": "Author or publication", "description": "Why read it"},
+      {"title": "Article or report title", "author": "Author or publication", "description": "Why read it"}
     ]
   }
 }
 
-Fill in all numeric values in market_data.data_points with realistic, plausible figures for ${vertical}.
-Make every piece of content feel freshly researched, not generic. Reference real industry dynamics even if specific figures are illustrative.`;
+Use web search to ground as much content as possible in real, current, verifiable information. Where exact facts are uncertain, make clear the content is illustrative while keeping it realistic and professionally valuable. Return ONLY the JSON object.`;
 }
 
 export function buildRefreshPrompt(params: ContentPromptParams, previousHeadline: string): string {
-  return buildMasterPrompt(params) + `
-
-IMPORTANT: The previous issue had the headline: "${previousHeadline}"
-Generate a FRESH issue with different angles, different news items, and a new hero headline. Do not repeat topics from the previous issue.`;
+  const base = buildMasterPrompt(params);
+  return base + `\n\nIMPORTANT: The previous issue had the headline: "${previousHeadline}". Generate completely fresh content with a different angle, different stories, and different data points. Use web search to find the latest developments since the last issue.`;
 }
+
