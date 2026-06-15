@@ -84,7 +84,7 @@ export default function OnboardingPage() {
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
             <TrendingUp className="h-6 w-6 text-blue-600" />
-            <span className="font-bold text-slate-900">Pulse Department</span>
+            <span className="font-bold text-sm text-slate-900 whitespace-nowrap">Pulse Department</span>
           </div>
           <span className="text-sm text-slate-500">Step {stepIndex + 1} of {STEPS.length}</span>
         </div>
@@ -220,7 +220,7 @@ export default function OnboardingPage() {
             </div>
 
             <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-6 text-sm text-blue-700">
-              Your free Starter plan includes 1 vertical and 1 fresh issue per day. Upgrade to unlock all {professions.length} verticals you selected.
+              You have 3 free issues to explore Pulse Department across any verticals. After that, subscribe from $5/month to keep the intelligence flowing daily.
             </div>
 
             <div className="flex gap-3">
