@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
 
   const { data: profile } = await serviceSupabase
     .from('profiles')
-    .select('country, country_name, professions')
+    .select('country, country_name, professions, free_issues_used')
     .eq('id', userId)
     .single();
 
@@ -96,6 +96,17 @@ export async function POST(req: NextRequest) {
 
   const tier = subscription?.tier || 'starter';
   const limit = TIER_LIMITS[tier] || 1;
+
+  // Free issues check — allow 3 free issues for users without active subscription
+  const freeIssuesUsed = profile?.free_issues_used || 0;
+  const hasActiveSubscription = !!subscription?.tier;
+
+  if (!hasActiveSubscription && freeIssuesUsed >= 3) {
+    return NextResponse.json(
+      { error: 'FREE_LIMIT_REACHED', message: 'You have used your 3 free issues. Please subscribe to continue generating.' },
+      { status: 403 }
+    );
+  }
 
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
@@ -182,7 +193,15 @@ export async function POST(req: NextRequest) {
       tokens_used: tokensUsed,
     });
 
-    return NextResponse.json({ success: true, issue });
+    // Increment free issues used if no active subscription
+    if (!hasActiveSubscription) {
+      await serviceSupabase
+        .from('profiles')
+        .update({ free_issues_used: freeIssuesUsed + 1 })
+        .eq('id', userId);
+    }
+
+    return NextResponse.json({ success: true, issue, freeIssuesUsed: hasActiveSubscription ? null : freeIssuesUsed + 1 });
   } catch (err: any) {
     console.error('Generation error:', err);
     return NextResponse.json(
