@@ -11,6 +11,9 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState('');
   const [activeSection, setActiveSection] = useState('industry_news');
+  const [freeIssuesUsed, setFreeIssuesUsed] = useState<number | null>(null);
+  const [hasSubscription, setHasSubscription] = useState(false);
+  const [showPaywall, setShowPaywall] = useState(false);
   const [progress, setProgress] = useState(0);
   const [progressStep, setProgressStep] = useState('');
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
@@ -62,12 +65,26 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
         .eq('vertical_slug', slug).order('generated_at', { ascending: false })
         .limit(1).maybeSingle();
       if (latest) setIssue(latest.content);
+
+      // Check subscription and free issues
+      const { data: sub } = await supabase
+        .from('subscriptions')
+        .select('tier')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      setHasSubscription(!!sub?.tier);
+      setFreeIssuesUsed(prof?.free_issues_used || 0);
       setLoading(false);
     }
     load();
   }, [slug]);
 
   async function generate() {
+    // Check paywall before generating
+    if (!hasSubscription && (freeIssuesUsed ?? 0) >= 3) {
+      setShowPaywall(true);
+      return;
+    }
     setGenerating(true);
     setError('');
     startProgress();
@@ -83,9 +100,15 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
         body: JSON.stringify({ verticalSlug: slug }),
       });
       const data = await res.json();
+      if (res.status === 403 && data.error === 'FREE_LIMIT_REACHED') {
+        setShowPaywall(true);
+        stopProgress();
+        return;
+      }
       if (!res.ok) throw new Error(data.error || 'Generation failed');
       stopProgress();
       setIssue(data.issue);
+      if (data.freeIssuesUsed !== null) setFreeIssuesUsed(data.freeIssuesUsed);
     } catch (e: any) {
       stopProgress();
       setError(e.message);
@@ -95,6 +118,40 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
   }
 
   if (loading) return <div className="p-4 text-slate-400">Loading...</div>;
+
+  // Paywall modal
+  if (showPaywall) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 max-w-md w-full text-center">
+          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-3xl">🔒</span>
+          </div>
+          <h2 className="text-xl font-bold text-slate-900 mb-2">You've used your 3 free issues</h2>
+          <p className="text-slate-500 text-sm mb-6">
+            Subscribe to continue generating fresh professional intelligence every day across all your verticals.
+          </p>
+          <div className="space-y-3">
+            <a
+              href="/pricing"
+              className="block w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors"
+            >
+              View plans — from $5/month
+            </a>
+            <button
+              onClick={() => setShowPaywall(false)}
+              className="block w-full text-slate-500 text-sm hover:text-slate-700 py-2"
+            >
+              Back to dashboard
+            </button>
+          </div>
+          <p className="text-xs text-slate-400 mt-4">
+            You can still browse your previously generated issues in History.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full">
@@ -118,6 +175,9 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
             {generating ? 'Generating…' : issue ? 'Refresh' : 'Generate'}
           </button>
           {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+          {!hasSubscription && freeIssuesUsed !== null && freeIssuesUsed < 3 && (
+            <p className="text-xs text-slate-400 mt-1">{3 - freeIssuesUsed} free {3 - freeIssuesUsed === 1 ? 'issue' : 'issues'} remaining</p>
+          )}
         </div>
       </div>
 
@@ -262,7 +322,7 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
                     className="w-full h-36 object-cover rounded-xl mb-4"
                   />
                 )}
-                <h3 className="text-base font-bold text-slate-900 mb-1">Case Study</h3>
+                <h3 className="text-base font-bold text-slate-900 mb-1">Illustrative Case Study</h3>
                 <p className="text-blue-600 text-xs mb-3">{issue.case_study?.company} · {issue.case_study?.country}</p>
                 <div className="space-y-3">
                   {[
@@ -335,9 +395,9 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
                 <h3 className="text-base font-bold text-slate-900 mb-1">{issue.opinion?.title}</h3>
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-7 h-7 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
-                    {issue.opinion?.author?.[0] || 'O'}
+                    E
                   </div>
-                  <p className="text-xs text-slate-500">{issue.opinion?.author} · {issue.opinion?.position}</p>
+                  <p className="text-xs text-slate-500">By our expert</p>
                 </div>
                 <p className="text-sm text-slate-700 leading-relaxed">{issue.opinion?.body}</p>
               </div>
