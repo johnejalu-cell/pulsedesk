@@ -94,7 +94,7 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 text-sm font-medium px-4 py-2 rounded-full mb-8">
             <Zap className="h-4 w-4" />
-            AI-powered professional intelligence
+            3 free issues — no credit card needed
           </div>
           <h1 className="text-5xl sm:text-6xl font-bold text-slate-900 leading-tight mb-6">
             Your profession,<br />
@@ -108,7 +108,7 @@ export default function LandingPage() {
               href="/signup"
               className="inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-8 py-4 rounded-xl font-semibold hover:bg-blue-700 transition-colors text-lg"
             >
-              Start free — no credit card
+              Try free — 3 issues, no credit card
               <ArrowRight className="h-5 w-5" />
             </Link>
             <Link
