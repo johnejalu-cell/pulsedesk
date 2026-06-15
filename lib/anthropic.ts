@@ -18,12 +18,6 @@ export async function generateMagazineIssue(
   const message = await anthropic.messages.create({
     model,
     max_tokens: 8192,
-    tools: [
-      {
-        type: 'web_search_20260209',
-        name: 'web_search',
-      } as any,
-    ],
     messages: [
       {
         role: 'user',
