@@ -44,6 +44,7 @@ export default function AdminPage() {
   const [saving, setSaving] = useState<string | null>(null);
   const [imageEdits, setImageEdits] = useState<Record<string, { hero: string; case_study: string }>>({});
   const [error, setError] = useState('');
+  const [activationRequests, setActivationRequests] = useState<any[]>([]);
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
@@ -99,6 +100,14 @@ export default function AdminPage() {
         };
       });
       setImageEdits(edits);
+      // Load pending activation requests
+      const { data: requests } = await supabase
+        .from('activation_requests')
+        .select('*')
+        .eq('status', 'pending')
+        .order('requested_at', { ascending: false });
+      setActivationRequests(requests || []);
+
       setLoading(false);
     }
     load();
@@ -146,6 +155,40 @@ export default function AdminPage() {
     }).eq('slug', slug);
     setSaving(null);
     showSuccess(`${slug} images updated`);
+  }
+
+  async function activateUser(requestId: string, email: string, plan: string) {
+    setSaving(requestId);
+    // Find user by email and update their subscription
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('email', email)
+      .single();
+
+    if (profile) {
+      const { data: existingSub } = await supabase
+        .from('subscriptions')
+        .select('id')
+        .eq('user_id', profile.id)
+        .maybeSingle();
+
+      if (existingSub) {
+        await supabase.from('subscriptions').update({ tier: plan, status: 'active' }).eq('id', existingSub.id);
+      } else {
+        await supabase.from('subscriptions').insert({ user_id: profile.id, tier: plan, status: 'active' });
+      }
+    }
+
+    // Mark request as activated
+    await supabase.from('activation_requests').update({
+      status: 'activated',
+      activated_at: new Date().toISOString(),
+    }).eq('id', requestId);
+
+    setActivationRequests(prev => prev.filter(r => r.id !== requestId));
+    setSaving(null);
+    showSuccess(`${email} activated on ${plan} plan`);
   }
 
   function showSuccess(msg: string) {
@@ -237,6 +280,7 @@ export default function AdminPage() {
           {[
             { key: 'users', label: 'Users', icon: Users },
             { key: 'images', label: 'Vertical Images', icon: Image },
+          { key: 'activations', label: `Activations${activationRequests.length > 0 ? ` (${activationRequests.length})` : ''}`, icon: Users },
           ].map(tab => (
             <button
               key={tab.key}
@@ -302,6 +346,39 @@ export default function AdminPage() {
                       {saving === user.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                     </button>
                   </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Activations tab */}
+        {activeTab === 'activations' && (
+          <div className="space-y-3">
+            {activationRequests.length === 0 && (
+              <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center">
+                <p className="text-slate-500 text-sm">No pending activation requests</p>
+              </div>
+            )}
+            {activationRequests.map(req => (
+              <div key={req.id} className="bg-white rounded-2xl border border-slate-200 p-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="font-semibold text-slate-900 text-sm">{req.email}</p>
+                    <div className="flex items-center gap-3 mt-1">
+                      <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full capitalize font-medium">{req.plan}</span>
+                      <span className="text-xs text-slate-400">
+                        {new Date(req.requested_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => activateUser(req.id, req.email, req.plan)}
+                    disabled={saving === req.id}
+                    className="flex items-center gap-1.5 bg-green-600 text-white text-sm font-medium px-4 py-2 rounded-xl hover:bg-green-700 transition-colors shrink-0 disabled:opacity-60"
+                  >
+                    {saving === req.id ? <Loader2 className="h-4 w-4 animate-spin" /> : '✓ Activate'}
+                  </button>
                 </div>
               </div>
             ))}
