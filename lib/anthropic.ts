@@ -17,7 +17,7 @@ export async function generateMagazineIssue(
 
   const message = await anthropic.messages.create({
     model,
-    max_tokens: 8192,
+    max_tokens: 16000,
     system: 'You are a JSON API. You ONLY output raw JSON objects. You NEVER write explanatory text, narration, or markdown. You NEVER say what you are about to do. Your entire response must be a single valid JSON object starting with { and ending with }. Use web search to find real current information, then output ONLY the JSON.',
     tools: [
       {
@@ -34,6 +34,11 @@ export async function generateMagazineIssue(
   });
 
   const tokensUsed = message.usage.input_tokens + message.usage.output_tokens;
+
+  // Check if response was truncated
+  if (message.stop_reason === 'max_tokens') {
+    throw new Error('Response was truncated - content too long. Please try again.');
+  }
 
   // Extract all text blocks from response
   const rawText = message.content
