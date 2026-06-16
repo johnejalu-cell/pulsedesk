@@ -156,7 +156,7 @@ export default function PricingPage() {
               <div className="w-7 h-7 rounded-full bg-blue-600 text-white text-sm font-bold flex items-center justify-center flex-shrink-0">3</div>
               <div>
                 <p className="font-medium text-slate-900 text-sm">Get activated</p>
-                <p className="text-slate-500 text-xs mt-1">Forward your payment confirmation to support and we'll activate your plan within 24 hours.</p>
+                <p className="text-slate-500 text-xs mt-1">After payment you'll be redirected back to enter your account email. We'll activate your plan within 2 hours.</p>
               </div>
             </div>
           </div>
