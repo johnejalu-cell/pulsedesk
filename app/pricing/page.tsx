@@ -4,7 +4,7 @@ import { TrendingUp, CheckCircle, ArrowRight } from 'lucide-react';
 const PLANS = [
   {
     name: 'Starter',
-    price: '$5',
+    price: '$10',
     period: '/month',
     verticals: '1 vertical',
     generations: '1 issue per day',
@@ -20,7 +20,7 @@ const PLANS = [
   },
   {
     name: 'Pro',
-    price: '$10',
+    price: '$25',
     period: '/month',
     verticals: 'Up to 5 verticals',
     generations: '3 issues per day',
@@ -36,7 +36,7 @@ const PLANS = [
   },
   {
     name: 'Corporate',
-    price: '$20',
+    price: '$75',
     period: '/month',
     verticals: 'Unlimited verticals',
     generations: '10 issues per day',
