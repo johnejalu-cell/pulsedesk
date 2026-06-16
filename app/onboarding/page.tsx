@@ -220,7 +220,7 @@ export default function OnboardingPage() {
             </div>
 
             <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-6 text-sm text-blue-700">
-              You have 3 free issues to explore Pulse Department across any verticals. After that, subscribe from $5/month to keep the intelligence flowing daily.
+              You have 3 free issues to explore Pulse Department across any verticals. After that, subscribe from $10/month to keep the intelligence flowing daily.
             </div>
 
             <div className="flex gap-3">
