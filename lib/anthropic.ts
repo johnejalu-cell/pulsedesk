@@ -18,6 +18,7 @@ export async function generateMagazineIssue(
   const message = await anthropic.messages.create({
     model,
     max_tokens: 8192,
+    system: 'You are a JSON API. You ONLY output raw JSON objects. You NEVER write explanatory text, narration, or markdown. You NEVER say what you are about to do. Your entire response must be a single valid JSON object starting with { and ending with }. Use web search to find real current information, then output ONLY the JSON.',
     tools: [
       {
         type: 'web_search_20250305',
@@ -40,13 +41,13 @@ export async function generateMagazineIssue(
     .map((block: any) => block.text)
     .join('');
 
-  // Strip markdown fences and find JSON
+  // Strip markdown fences
   let cleaned = rawText
     .replace(/```json\n?/gi, '')
     .replace(/```\n?/g, '')
     .trim();
 
-  // Find JSON object - from first { to last }
+  // Find the JSON object - from first { to last }
   const firstBrace = cleaned.indexOf('{');
   const lastBrace = cleaned.lastIndexOf('}');
   if (firstBrace !== -1 && lastBrace !== -1) {
