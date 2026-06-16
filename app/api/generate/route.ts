@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+
+// Increase timeout for AI generation with web search
+export const maxDuration = 300;
 import { createServiceClient } from '@/lib/supabase/server';
 import { generateMagazineIssue } from '@/lib/anthropic';
 import { buildMasterPrompt, buildRefreshPrompt } from '@/lib/prompts';
