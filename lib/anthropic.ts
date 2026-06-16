@@ -34,35 +34,30 @@ export async function generateMagazineIssue(
 
   const tokensUsed = message.usage.input_tokens + message.usage.output_tokens;
 
-  // Extract all text blocks from response (web search may produce multiple content blocks)
+  // Extract all text blocks from response
   const rawText = message.content
     .filter((block: any) => block.type === 'text')
     .map((block: any) => block.text)
     .join('');
 
-  // Aggressively strip all markdown fences and backticks
-  const cleaned = rawText
-    .replace(/```json\n?/g, '')
+  // Strip markdown fences and find JSON
+  let cleaned = rawText
+    .replace(/```json\n?/gi, '')
     .replace(/```\n?/g, '')
-    .replace(/`/g, '')
-    .replace(/^json\s*/i, '')
     .trim();
+
+  // Find JSON object - from first { to last }
+  const firstBrace = cleaned.indexOf('{');
+  const lastBrace = cleaned.lastIndexOf('}');
+  if (firstBrace !== -1 && lastBrace !== -1) {
+    cleaned = cleaned.slice(firstBrace, lastBrace + 1);
+  }
 
   let parsedContent: any = null;
   try {
     parsedContent = JSON.parse(cleaned);
   } catch {
-    // Try to extract JSON from the text if it's wrapped in other content
-    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      try {
-        parsedContent = JSON.parse(jsonMatch[0]);
-      } catch {
-        throw new Error('AI returned invalid JSON. Raw: ' + rawText.slice(0, 200));
-      }
-    } else {
-      throw new Error('AI returned invalid JSON. Raw: ' + rawText.slice(0, 200));
-    }
+    throw new Error('AI returned invalid JSON. Raw: ' + rawText.slice(0, 300));
   }
 
   const now = new Date().toISOString();
