@@ -15,7 +15,7 @@ const PLANS = [
       'Content history',
       'Mobile + desktop access',
     ],
-    paypalLink: 'https://www.paypal.com/ncp/payment/N3A6NNACFFK2L',
+    paypalLink: 'https://www.paypal.com/ncp/payment/ZTCY52CRX6LNE',
     highlight: false,
   },
   {
@@ -31,7 +31,7 @@ const PLANS = [
       'Priority processing',
       'Full content history',
     ],
-    paypalLink: 'https://www.paypal.com/ncp/payment/CMVEWKMULL7TQ',
+    paypalLink: 'https://www.paypal.com/ncp/payment/LJ683EWZT5WGN',
     highlight: true,
   },
   {
@@ -47,7 +47,7 @@ const PLANS = [
       'Team sharing (5 seats)',
       'Priority support',
     ],
-    paypalLink: 'https://www.paypal.com/ncp/payment/HDYQ5JHXVBH38',
+    paypalLink: 'https://www.paypal.com/ncp/payment/59MH2X6DB4RS6',
     highlight: false,
   },
 ];
@@ -156,7 +156,7 @@ export default function PricingPage() {
               <div className="w-7 h-7 rounded-full bg-blue-600 text-white text-sm font-bold flex items-center justify-center flex-shrink-0">3</div>
               <div>
                 <p className="font-medium text-slate-900 text-sm">Get activated</p>
-                <p className="text-slate-500 text-xs mt-1">After payment you'll be redirected back to enter your account email. We'll activate your plan within 2 hours.</p>
+                <p className="text-slate-500 text-xs mt-1">During checkout, enter your Pulse Department account email in the notes field. We'll activate your plan within 2 hours of payment.</p>
               </div>
             </div>
           </div>
