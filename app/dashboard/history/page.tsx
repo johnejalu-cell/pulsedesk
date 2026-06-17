@@ -116,7 +116,7 @@ function NewsSection({ data, index, title }: { data: any; index?: number; title?
 
 function CaseStudySection({ data, index }: { data: any; index: number }) {
   return (
-    <SectionShell index={index} title="Case Study">
+    <SectionShell index={index} title="Illustrative Case Study">
       {data.image_url && (
         <img src={data.image_url} alt={data.company || 'Case Study'} className="w-full h-36 object-cover rounded-xl mb-4" />
       )}
@@ -177,17 +177,12 @@ function MarketDataSection({ data, index }: { data: any; index: number }) {
 function OpinionSection({ data, index }: { data: any; index: number }) {
   return (
     <SectionShell index={index} title={data.title || 'Opinion'}>
-      {(data.author || data.position) && (
-        <div className="flex items-center gap-2 mb-3">
-          <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
-            {data.author?.[0] || 'O'}
-          </div>
-          <div>
-            {data.author && <p className="text-sm font-semibold text-slate-800">{data.author}</p>}
-            {data.position && <p className="text-xs text-slate-400">{data.position}</p>}
-          </div>
+      <div className="flex items-center gap-2 mb-3">
+        <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
+          E
         </div>
-      )}
+        <p className="text-sm text-slate-500">By our expert</p>
+      </div>
       {data.body && <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-wrap">{data.body}</p>}
       {data.content && <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-wrap">{data.content}</p>}
     </SectionShell>
@@ -443,4 +438,3 @@ export default function HistoryPage() {
     </div>
   );
 }
-
