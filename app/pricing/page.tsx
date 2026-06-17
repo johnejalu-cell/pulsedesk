@@ -44,7 +44,6 @@ const PLANS = [
       '40 issues per month',
       'Unlimited verticals',
       'Global, continental & local news',
-      'Team sharing (5 seats)',
       'Priority support',
     ],
     paypalLink: 'https://www.paypal.com/ncp/payment/59MH2X6DB4RS6',
