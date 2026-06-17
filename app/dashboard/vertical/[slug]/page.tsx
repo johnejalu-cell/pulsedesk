@@ -129,7 +129,7 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
           </div>
           <h2 className="text-xl font-bold text-slate-900 mb-2">You've used your 3 free issues</h2>
           <p className="text-slate-500 text-sm mb-6">
-            Subscribe to continue generating fresh professional intelligence every day across all your verticals.
+            Subscribe to continue generating fresh professional intelligence across all your verticals.
           </p>
           <div className="space-y-3">
             <a
@@ -259,10 +259,17 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
                   {issue.industry_news?.items?.map((item: any, i: number) => (
                     <div key={i} className="pb-4 border-b border-slate-100 last:border-0">
                       <div className="flex items-start gap-2 mb-1">
-                        <h4 className="font-semibold text-slate-900 text-sm leading-snug">{item.title}</h4>
-                        {item.local && <span className="text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full flex-shrink-0">Local</span>}
+                        <h4 className="font-semibold text-slate-900 text-sm leading-snug flex-1">{item.title}</h4>
+                        {item.scope === 'local' || item.local ? (
+                          <span className="text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full flex-shrink-0">Local</span>
+                        ) : item.scope && item.scope !== 'global' ? (
+                          <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full flex-shrink-0">{item.scope}</span>
+                        ) : (
+                          <span className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full flex-shrink-0">Global</span>
+                        )}
                       </div>
                       <p className="text-sm text-slate-600 leading-relaxed">{item.summary}</p>
+                      {item.source && <p className="text-xs text-slate-400 mt-1">Source: {item.source}</p>}
                     </div>
                   ))}
                 </div>
@@ -460,4 +467,3 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
     </div>
   );
 }
-
