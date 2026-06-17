@@ -37,9 +37,11 @@ export async function generateMagazineIssue(
   // Split prompts
   const searchedSectionsPrompt = `${prompt}
 
-IMPORTANT: Use web search to find REAL, CURRENT information for these sections only.
-Return ONLY a JSON object with these 4 keys: hero, industry_news, regulatory, market_data.
-Start immediately with { and end with }. No other text.`;
+You must use web search to find real current information.
+Return ONLY a raw JSON object with exactly these 4 top-level keys: hero, industry_news, regulatory, market_data.
+Do NOT wrap in markdown. Do NOT add any text before or after.
+Do NOT nest under an 'issue' key.
+Your response must start with { and end with }.`;
 
   const trainingDataPrompt = `${prompt}
 
