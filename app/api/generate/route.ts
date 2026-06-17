@@ -9,11 +9,12 @@ import { createClient } from '@supabase/supabase-js';
 // Increase timeout for AI generation with web search
 export const maxDuration = 300;
 
+// Monthly issue allowances (carry forward within month)
 const TIER_LIMITS: Record<string, number> = {
-  starter: 1,
-  pro: 3,
-  corporate: 10,
-  enterprise: 10,
+  starter: 4,
+  pro: 12,
+  corporate: 40,
+  enterprise: 40,
 };
 
 // Images are now stored in Supabase verticals table
@@ -80,20 +81,21 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Daily limit check for paid subscribers
+  // Monthly limit check for paid subscribers
   if (hasActiveSubscription) {
-    const limit = TIER_LIMITS[tier] || 1;
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
+    const limit = TIER_LIMITS[tier] || 4;
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
     const { count } = await serviceSupabase
       .from('generation_log')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', userId)
-      .gte('created_at', startOfDay.toISOString());
+      .gte('created_at', startOfMonth.toISOString());
 
     if ((count || 0) >= limit) {
       return NextResponse.json(
-        { error: `Daily limit of ${limit} generation(s) reached.` },
+        { error: `Monthly limit of ${limit} generation(s) reached. Your allowance resets on the 1st of next month.` },
         { status: 429 }
       );
     }
@@ -193,4 +195,3 @@ export async function POST(req: NextRequest) {
     );
   }
 }
-
