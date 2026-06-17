@@ -155,7 +155,7 @@ export default function PricingPage() {
               <div className="w-7 h-7 rounded-full bg-blue-600 text-white text-sm font-bold flex items-center justify-center flex-shrink-0">3</div>
               <div>
                 <p className="font-medium text-slate-900 text-sm">Get activated</p>
-                <p className="text-slate-500 text-xs mt-1">During checkout, enter your Pulse Department account email in the notes field. We'll activate your plan within 2 hours of payment.</p>
+                <p className="text-slate-500 text-xs mt-1">During checkout, enter your Pulse Department account email in the notes field. We'll activate your plan within 1 hour of payment.</p>
               </div>
             </div>
           </div>
