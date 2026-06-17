@@ -88,11 +88,11 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 text-sm font-medium px-4 py-2 rounded-full mb-8">
             <Zap className="h-4 w-4" />
-            AI-powered · Global + Local · Any profession · Any country
+            AI-powered professional intelligence
           </div>
           <h1 className="text-5xl sm:text-6xl font-bold text-slate-900 leading-tight mb-6">
-            Professional magazines.<br />
-            <span className="text-blue-600">Global scope. Local context.</span>
+            Your profession,<br />
+            <span className="text-blue-600">globally informed.</span>
           </h1>
           <p className="text-xl text-slate-500 max-w-2xl mx-auto mb-10">
             Up-to-date profession news, topical issues and expert opinions — delivered as a fresh AI-generated magazine. One subscription, any profession, any country. 70% world-class global insights, 30% localized to your market.
