@@ -61,10 +61,10 @@ export default function PricingPage() {
             <TrendingUp className="h-5 w-5 text-blue-600" />
             <span className="font-bold text-slate-900 whitespace-nowrap">Pulse Department</span>
           </Link>
-          <div className="flex items-center gap-4">
-            <Link href="/login" className="text-sm text-slate-600 hover:text-slate-900">Sign in</Link>
-            <Link href="/signup" className="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-              Get started free
+          <div className="flex items-center gap-2">
+            <Link href="/login" className="text-sm text-slate-600 hover:text-slate-900 px-2 py-1.5">Sign in</Link>
+            <Link href="/signup" className="text-sm bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors whitespace-nowrap">
+              Get started
             </Link>
           </div>
         </div>
