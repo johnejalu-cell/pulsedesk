@@ -7,11 +7,11 @@ const PLANS = [
     price: '$10',
     period: '/month',
     verticals: '1 vertical',
-    generations: '1 issue per day',
+    generations: '4 issues per month',
     features: [
-      'Daily AI magazine issues',
-      '70/30 global + local content',
-      'Full 10-section format',
+      '4 issues per month (weekly cadence)',
+      'Global, continental & local news',
+      'Full 10-section magazine format',
       'Content history',
       'Mobile + desktop access',
     ],
@@ -23,11 +23,11 @@ const PLANS = [
     price: '$25',
     period: '/month',
     verticals: 'Up to 5 verticals',
-    generations: '3 issues per day',
+    generations: '12 issues per month',
     features: [
-      'Everything in Starter',
+      '12 issues per month across verticals',
       'Up to 5 professional verticals',
-      '3 generations per day',
+      'Global, continental & local news',
       'Priority processing',
       'Full content history',
     ],
@@ -39,11 +39,11 @@ const PLANS = [
     price: '$75',
     period: '/month',
     verticals: 'Unlimited verticals',
-    generations: '10 issues per day',
+    generations: '40 issues per month',
     features: [
-      'Everything in Pro',
+      '40 issues per month',
       'Unlimited verticals',
-      '10 generations per day',
+      'Global, continental & local news',
       'Team sharing (5 seats)',
       'Priority support',
     ],
@@ -180,4 +180,3 @@ export default function PricingPage() {
     </div>
   );
 }
-
