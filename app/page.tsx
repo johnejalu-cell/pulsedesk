@@ -69,20 +69,14 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <TrendingUp className="h-6 w-6 text-blue-600" />
-            <span className="font-bold text-sm text-slate-900 whitespace-nowrap">Pulse Department</span>
+            <span className="font-bold text-base text-slate-900 whitespace-nowrap">Pulse Department</span>
           </div>
-          {/* Desktop nav buttons */}
-          <div className="hidden sm:flex items-center gap-4">
-            <Link href="/login" className="text-sm text-slate-600 hover:text-slate-900 transition-colors">
+          {/* Nav buttons - all screen sizes */}
+          <div className="flex items-center gap-2">
+            <Link href="/login" className="text-xs sm:text-sm text-slate-600 hover:text-slate-900 transition-colors px-2 py-1.5 whitespace-nowrap">
               Sign in
             </Link>
-            <Link href="/signup" className="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-              Get started free
-            </Link>
-          </div>
-          {/* Mobile — single button only */}
-          <div className="flex sm:hidden">
-            <Link href="/signup" className="text-xs bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium whitespace-nowrap">
+            <Link href="/signup" className="text-xs sm:text-sm bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors whitespace-nowrap">
               Get started
             </Link>
           </div>
