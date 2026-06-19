@@ -3,6 +3,12 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { COUNTRIES } from '@/lib/utils';
 
+const WATCHLIST_LIMITS: Record<string, number> = {
+  starter: 1,
+  pro: 3,
+  corporate: 10,
+};
+
 export default function SettingsPage() {
   const [profile, setProfile] = useState<any>(null);
   const [allVerticals, setAllVerticals] = useState<any[]>([]);
@@ -15,11 +21,20 @@ export default function SettingsPage() {
   const [subscription, setSubscription] = useState<any>(null);
   const [freeIssuesUsed, setFreeIssuesUsed] = useState(0);
 
+  // Watchlist state
+  const [watchlist, setWatchlist] = useState<string[]>([]);
+  const [newTerm, setNewTerm] = useState('');
+  const [savingWatchlist, setSavingWatchlist] = useState(false);
+  const [watchlistSaved, setWatchlistSaved] = useState(false);
+  const [userId, setUserId] = useState<string>('');
+
   useEffect(() => {
     const supabase = createClient();
     async function load() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { window.location.href = '/login'; return; }
+
+      setUserId(user.id);
 
       const [{ data: prof }, { data: verts }] = await Promise.all([
         supabase.from('profiles').select('*').eq('id', user.id).single(),
@@ -32,6 +47,7 @@ export default function SettingsPage() {
       setCountryName(prof?.country_name || '');
       setProfessions(prof?.professions || []);
       setFreeIssuesUsed(prof?.free_issues_used || 0);
+      setWatchlist(prof?.watchlist || []);
 
       const { data: sub } = await supabase
         .from('subscriptions')
@@ -62,11 +78,39 @@ export default function SettingsPage() {
     }).eq('id', user.id);
     setSaving(false);
     setSaved(true);
-    // Reload after short delay so user sees the 'Saved!' confirmation
     setTimeout(() => {
       window.location.href = '/dashboard';
     }, 1000);
   }
+
+  async function saveWatchlist(updatedList: string[]) {
+    setSavingWatchlist(true);
+    const supabase = createClient();
+    await supabase.from('profiles').update({ watchlist: updatedList }).eq('id', userId);
+    setSavingWatchlist(false);
+    setWatchlistSaved(true);
+    setTimeout(() => setWatchlistSaved(false), 2000);
+  }
+
+  function addTerm() {
+    const trimmed = newTerm.trim();
+    if (!trimmed || watchlist.includes(trimmed)) return;
+    const limit = WATCHLIST_LIMITS[subscription?.tier] || 0;
+    if (watchlist.length >= limit) return;
+    const updated = [...watchlist, trimmed];
+    setWatchlist(updated);
+    setNewTerm('');
+    saveWatchlist(updated);
+  }
+
+  function removeTerm(term: string) {
+    const updated = watchlist.filter(t => t !== term);
+    setWatchlist(updated);
+    saveWatchlist(updated);
+  }
+
+  const watchlistLimit = WATCHLIST_LIMITS[subscription?.tier] || 0;
+  const canAddTerms = !!subscription?.tier && watchlist.length < watchlistLimit;
 
   if (loading) return <div className="p-8 text-slate-400">Loading...</div>;
 
@@ -124,10 +168,82 @@ export default function SettingsPage() {
       <button
         onClick={saveProfile}
         disabled={saving}
-        className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors disabled:opacity-60"
+        className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors disabled:opacity-60 mb-6"
       >
         {saved ? 'Saved! Redirecting...' : saving ? 'Saving...' : 'Save changes'}
       </button>
+
+      {/* Press Clippings Watchlist */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-6 mb-6">
+        <div className="flex items-center justify-between mb-1">
+          <h2 className="font-semibold text-slate-900">Press Clippings Watchlist</h2>
+          {watchlistSaved && <span className="text-xs text-green-600 font-medium">Saved!</span>}
+          {savingWatchlist && <span className="text-xs text-slate-400">Saving...</span>}
+        </div>
+        <p className="text-xs text-slate-500 mb-4">
+          Track people, companies, or topics. We'll email you their latest news weekly.
+        </p>
+
+        {!subscription?.tier ? (
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-center">
+            <p className="text-sm text-amber-700 font-medium mb-2">Press Clippings is a paid feature</p>
+            <a href="/pricing" className="text-sm bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-colors font-medium inline-block">
+              Subscribe to unlock
+            </a>
+          </div>
+        ) : (
+          <>
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs text-slate-400">
+                {watchlist.length} / {watchlistLimit} term{watchlistLimit !== 1 ? 's' : ''} used
+              </span>
+              <span className="text-xs text-slate-400 capitalize">{subscription.tier} plan</span>
+            </div>
+
+            {/* Existing terms */}
+            {watchlist.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-3">
+                {watchlist.map(term => (
+                  <div key={term} className="flex items-center gap-1 bg-blue-50 border border-blue-200 rounded-lg px-3 py-1.5">
+                    <span className="text-sm text-blue-700 font-medium">{term}</span>
+                    <button
+                      onClick={() => removeTerm(term)}
+                      className="text-blue-400 hover:text-blue-700 ml-1 text-xs font-bold"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Add new term */}
+            {canAddTerms ? (
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={newTerm}
+                  onChange={e => setNewTerm(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && addTerm()}
+                  placeholder="e.g. Elon Musk, OpenAI, fintech Uganda..."
+                  className="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button
+                  onClick={addTerm}
+                  disabled={!newTerm.trim()}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-40"
+                >
+                  Add
+                </button>
+              </div>
+            ) : watchlist.length >= watchlistLimit ? (
+              <div className="bg-slate-50 rounded-xl p-3 text-center">
+                <p className="text-xs text-slate-500">Limit reached. <a href="/pricing" className="text-blue-600 hover:underline">Upgrade</a> to track more.</p>
+              </div>
+            ) : null}
+          </>
+        )}
+      </div>
 
       {/* Account info */}
       <div className="bg-white border border-slate-200 rounded-2xl p-6 mt-6">
@@ -162,4 +278,3 @@ export default function SettingsPage() {
     </div>
   );
 }
-
