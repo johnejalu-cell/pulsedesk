@@ -1,0 +1,19 @@
+{
+  "functions": {
+    "app/api/generate/route.ts": {
+      "maxDuration": 300
+    },
+    "app/api/clippings/send/route.ts": {
+      "maxDuration": 300
+    },
+    "app/api/cron/clippings/route.ts": {
+      "maxDuration": 300
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/clippings",
+      "schedule": "0 7 * * 1"
+    }
+  ]
+}
