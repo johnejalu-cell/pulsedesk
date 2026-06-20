@@ -267,9 +267,9 @@ export default function SettingsPage() {
           {!subscription?.tier && (
             <div className="bg-blue-50 rounded-xl px-4 py-3">
               <p className="text-xs text-blue-700 font-medium">
-                {3 - freeIssuesUsed > 0
-                  ? `${3 - freeIssuesUsed} free ${3 - freeIssuesUsed === 1 ? 'issue' : 'issues'} remaining`
-                  : 'Free issues used — subscribe to continue'}
+                {1 - freeIssuesUsed > 0
+                  ? `${1 - freeIssuesUsed} free issue remaining`
+                  : 'Free issue used — subscribe to continue'}
               </p>
             </div>
           )}
