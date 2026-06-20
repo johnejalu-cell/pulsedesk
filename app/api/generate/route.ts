@@ -17,6 +17,9 @@ const TIER_LIMITS: Record<string, number> = {
   enterprise: 40,
 };
 
+// Free issues allowed for users without an active subscription
+const FREE_ISSUE_LIMIT = 1;
+
 // Images are now stored in Supabase verticals table
 // hero_image_url and case_study_image_url columns
 
@@ -73,10 +76,10 @@ export async function POST(req: NextRequest) {
   const hasActiveSubscription = !!subscription?.tier;
   const freeIssuesUsed = profile?.free_issues_used || 0;
 
-  // Free tier check — 3 free issues for users without subscription
-  if (!hasActiveSubscription && freeIssuesUsed >= 3) {
+  // Free tier check — 1 free issue for users without subscription
+  if (!hasActiveSubscription && freeIssuesUsed >= FREE_ISSUE_LIMIT) {
     return NextResponse.json(
-      { error: 'FREE_LIMIT_REACHED', message: 'You have used your 3 free issues. Please subscribe to continue.' },
+      { error: 'FREE_LIMIT_REACHED', message: 'You have used your free issue. Please subscribe to continue.' },
       { status: 403 }
     );
   }
