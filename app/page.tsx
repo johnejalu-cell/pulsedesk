@@ -99,10 +99,10 @@ export default function LandingPage() {
           </p>
           <Link
             href="#clippings"
-            className="inline-flex items-center gap-1.5 mb-8 text-sm font-medium text-slate-500 hover:text-blue-600 transition-colors"
+            className="inline-flex items-center gap-1.5 mb-8 text-sm font-medium text-slate-600 border border-slate-200 rounded-full px-4 py-2 hover:border-blue-300 hover:text-blue-600 transition-colors"
           >
             <Newspaper className="h-3.5 w-3.5" />
-            Plus Press Clippings — weekly alerts on people, companies & topics you track
+            Plus Press Clippings — weekly briefings on people, companies & topics you track
           </Link>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
