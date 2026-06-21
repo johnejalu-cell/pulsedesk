@@ -95,7 +95,7 @@ export default function LandingPage() {
             <span className="text-blue-600">globally informed.</span>
           </h1>
           <p className="text-xl text-slate-500 max-w-2xl mx-auto mb-6">
-            A fresh AI-generated magazine for your profession — 70% global insight, 30% localized to your market.
+            Fresh AI-generated magazines for your profession — 70% global insight, 30% localized to your market.
           </p>
           <Link
             href="#clippings"
