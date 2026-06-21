@@ -1,6 +1,6 @@
 // app/page.tsx — Pulse Department Landing Page
 import Link from 'next/link';
-import { ArrowRight, Globe, Zap, BarChart3, Users, CheckCircle, TrendingUp } from 'lucide-react';
+import { ArrowRight, Globe, Zap, BarChart3, Users, CheckCircle, TrendingUp, Newspaper } from 'lucide-react';
 
 const VERTICALS = [
   'Business & Management', 'Technology & IT', 'Finance & Investment',
@@ -37,7 +37,7 @@ const PLANS = [
     price: '$10',
     period: '/month',
     verticals: '1 vertical',
-    features: ['4 issues per month, generate anytime', 'Global, continental & local news', 'Full 10-section magazine format', 'Mobile + desktop access'],
+    features: ['4 issues per month, generate anytime', 'Global, continental & local news', 'Full 10-section magazine format', 'Press Clippings — track 1 term', 'Mobile + desktop access'],
     cta: 'View pricing',
     highlight: false,
   },
@@ -46,7 +46,7 @@ const PLANS = [
     price: '$25',
     period: '/month',
     verticals: 'Up to 5 verticals',
-    features: ['12 issues per month, generate anytime', 'Up to 5 professional verticals', 'Priority processing', 'Full content history'],
+    features: ['12 issues per month, generate anytime', 'Up to 5 professional verticals', 'Press Clippings — track 3 terms', 'Priority processing', 'Full content history'],
     cta: 'View pricing',
     highlight: true,
   },
@@ -55,7 +55,7 @@ const PLANS = [
     price: '$75',
     period: '/month',
     verticals: 'Unlimited verticals',
-    features: ['40 issues per month, generate anytime', 'Unlimited verticals', 'Global, continental & local news', 'Priority support'],
+    features: ['40 issues per month, generate anytime', 'Unlimited verticals', 'Press Clippings — track 10 terms', 'Global, continental & local news', 'Priority support'],
     cta: 'View pricing',
     highlight: false,
   },
@@ -164,6 +164,49 @@ export default function LandingPage() {
                 {s}
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Press Clippings */}
+      <section className="py-24 px-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-12 items-center">
+            <div>
+              <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 text-sm font-medium px-4 py-2 rounded-full mb-6">
+                <Newspaper className="h-4 w-4" />
+                Press Clippings
+              </div>
+              <h2 className="text-3xl font-bold text-slate-900 mb-4">
+                Never miss a mention.
+              </h2>
+              <p className="text-slate-500 mb-6">
+                Add people, companies, or topics to your watchlist. Every week, we scan for the latest news on each one and email you a personal briefing — straight to your inbox, no extra dashboard to check.
+              </p>
+              <Link
+                href="/pricing"
+                className="inline-flex items-center gap-2 text-blue-600 font-semibold hover:text-blue-700 transition-colors"
+              >
+                See watchlist limits by plan
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+            <div className="bg-slate-50 rounded-2xl border border-slate-100 p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Newspaper className="h-4 w-4 text-blue-600" />
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Your Press Clippings</span>
+              </div>
+              <div className="space-y-3">
+                <div className="bg-white rounded-xl border-l-3 border-blue-500 px-4 py-3">
+                  <p className="text-sm font-semibold text-slate-900">Your tracked term</p>
+                  <p className="text-xs text-slate-500 mt-1">Latest headline and a short summary, delivered weekly.</p>
+                </div>
+                <div className="bg-white rounded-xl border-l-3 border-blue-500 px-4 py-3">
+                  <p className="text-sm font-semibold text-slate-900">Another tracked term</p>
+                  <p className="text-xs text-slate-500 mt-1">Sourced and summarized automatically.</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
