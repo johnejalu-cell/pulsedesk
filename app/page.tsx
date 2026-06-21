@@ -94,9 +94,16 @@ export default function LandingPage() {
             Your profession,<br />
             <span className="text-blue-600">globally informed.</span>
           </h1>
-          <p className="text-xl text-slate-500 max-w-2xl mx-auto mb-10">
-            Up-to-date profession news, topical issues and expert opinions — delivered as a fresh AI-generated magazine. One subscription, any profession, any country. 70% world-class global insights, 30% localized to your market.
+          <p className="text-xl text-slate-500 max-w-2xl mx-auto mb-6">
+            A fresh AI-generated magazine for your profession — 70% global insight, 30% localized to your market.
           </p>
+          <Link
+            href="#clippings"
+            className="inline-flex items-center gap-1.5 mb-8 text-sm font-medium text-slate-500 hover:text-blue-600 transition-colors"
+          >
+            <Newspaper className="h-3.5 w-3.5" />
+            Plus Press Clippings — weekly alerts on people, companies & topics you track
+          </Link>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/signup"
@@ -112,13 +119,6 @@ export default function LandingPage() {
               View pricing
             </Link>
           </div>
-          <Link
-            href="#clippings"
-            className="inline-flex items-center gap-1.5 mt-6 text-sm font-medium text-slate-500 hover:text-blue-600 transition-colors"
-          >
-            <Newspaper className="h-3.5 w-3.5" />
-            Plus Press Clippings — weekly alerts on people, companies & topics you track
-          </Link>
         </div>
       </section>
 
