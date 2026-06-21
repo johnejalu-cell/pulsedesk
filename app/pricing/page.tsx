@@ -9,7 +9,7 @@ const PLANS = [
     verticals: '1 vertical',
     generations: '4 issues per month',
     features: [
-      '4 issues per month (weekly cadence)',
+      '4 issues per month, generate anytime',
       'Global, continental & local news',
       'Full 10-section magazine format',
       'Content history',
@@ -25,7 +25,7 @@ const PLANS = [
     verticals: 'Up to 5 verticals',
     generations: '12 issues per month',
     features: [
-      '12 issues per month across verticals',
+      '12 issues per month, generate anytime',
       'Up to 5 professional verticals',
       'Global, continental & local news',
       'Priority processing',
@@ -41,7 +41,7 @@ const PLANS = [
     verticals: 'Unlimited verticals',
     generations: '40 issues per month',
     features: [
-      '40 issues per month',
+      '40 issues per month, generate anytime',
       'Unlimited verticals',
       'Global, continental & local news',
       'Priority support',
@@ -164,11 +164,11 @@ export default function PricingPage() {
         {/* Support note */}
         <div className="text-center">
           <p className="text-slate-500 text-sm">
-            After payment, email your confirmation to{' '}
+            Questions about your subscription? Email{' '}
             <a href="mailto:support@pulsedepartment.com" className="text-blue-600 hover:underline">
               support@pulsedepartment.com
-            </a>{' '}
-            to activate your plan.
+            </a>
+            .
           </p>
           <p className="text-slate-400 text-xs mt-2">
             Already have an account?{' '}
@@ -179,3 +179,4 @@ export default function PricingPage() {
     </div>
   );
 }
+
