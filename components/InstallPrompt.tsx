@@ -1,22 +1,10 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { X, Smartphone, Share } from 'lucide-react';
+import { isIos, isStandalone } from '@/lib/pwa-utils';
 
 const DISMISS_KEY = 'pd_install_dismissed';
 const DISMISS_DAYS = 14;
-
-function isIos(): boolean {
-  if (typeof window === 'undefined') return false;
-  return /iphone|ipad|ipod/i.test(window.navigator.userAgent);
-}
-
-function isStandalone(): boolean {
-  if (typeof window === 'undefined') return false;
-  return (
-    window.matchMedia('(display-mode: standalone)').matches ||
-    (window.navigator as any).standalone === true
-  );
-}
 
 function wasRecentlyDismissed(): boolean {
   if (typeof window === 'undefined') return false;
@@ -47,8 +35,16 @@ export default function InstallPrompt() {
       setShow(true);
     }
 
+    function handleAppInstalled() {
+      setShow(false);
+    }
+
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
   }, []);
 
   function dismiss() {
