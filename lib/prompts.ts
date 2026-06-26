@@ -58,23 +58,19 @@ function buildPulseLensBlock(lastLensUsed: PulseLensType | null): string {
     : ALL_LENSES;
 
   const menu = available
-    .map(l => `  - "${l}": ${PULSE_LENS_DEFINITIONS[l].label} — ${PULSE_LENS_DEFINITIONS[l].instruction}`)
-    .join('\n');
+    .map(l => `"${l}" (${PULSE_LENS_DEFINITIONS[l].label}: ${PULSE_LENS_DEFINITIONS[l].instruction})`)
+    .join(' OR ');
 
-  return `
-pulse_lens (REQUIRED — do not omit, even if the hero story seems mundane):
-- This is a separate top-level field, not nested inside hero.
-- Pick exactly ONE lens from this list (the previous issue used "${lastLensUsed ?? 'none yet'}", so it is excluded):
-${menu}
-- Apply your chosen lens specifically to the hero story above — the same headline/event, not a different topic.
-- Fields required: lens_used (must exactly match one of the keys above, e.g. "historian"), lens_label (the matching label, e.g. "The Historian's Lens"), text (80-150 words of plain prose — no markdown, no line breaks, no bullet points).
-- The text must state a genuine reframe grounded in specifics from the hero story, show what's being missed or what mechanism applies, and land a concrete implication. Do not open with "Imagine" or "Picture this." Do not name or explain the lens technique inside the text itself. Write as a confident, polished magazine sidebar.
-- Find the real angle even on a mundane story rather than skipping this field — but do not force false drama if the story is genuinely small; a proportionate, modest insight is correct and preferred over an inflated one.`;
+  return `pulse_lens:
+- lens_used, lens_label, text (80-150 words, plain prose, reframing the hero story)
+- Choose ONE: ${menu}
+- Not "${lastLensUsed ?? 'none yet'}" (used last issue)`;
 }
 
 export function buildMasterPrompt(
   params: ContentPromptParams,
-  lastLensUsed: PulseLensType | null = null
+  lastLensUsed: PulseLensType | null = null,
+  extraNote: string = ''
 ): string {
   const { vertical, country, countryCode, region, currentMonth } = params;
   const continent = getContinent(countryCode);
@@ -89,7 +85,6 @@ hero:
 - subheadline: supporting line
 - summary: 2-3 sentence overview grounded in real current developments
 - tags: array of 4 topic tags
-${pulseLensBlock}
 industry_news:
 - items: array of exactly 7 news items covering:
   * 3 global items (scope: "global") — worldwide ${vertical} news
@@ -114,7 +109,10 @@ opinion:
 resources:
 - tools: array of 2 items (name, description)
 - events: array of 2 items (name, date, description)
-- reading: array of 2 items (title, author, description)`;
+- reading: array of 2 items (title, author, description)
+${extraNote}
+${pulseLensBlock}
+The pulse_lens field is mandatory. A response without it is incomplete and incorrect — include it every time, no exceptions.`;
 }
 
 export function buildRefreshPrompt(
@@ -122,6 +120,6 @@ export function buildRefreshPrompt(
   previousHeadline: string,
   lastLensUsed: PulseLensType | null = null
 ): string {
-  return buildMasterPrompt(params, lastLensUsed) + `
-IMPORTANT: The previous issue had the headline: "${previousHeadline}". Generate completely fresh content with a different angle, different stories, and different data points.`;
+  const refreshNote = `\nIMPORTANT: The previous issue had the headline: "${previousHeadline}". Generate completely fresh content with a different angle, different stories, and different data points.`;
+  return buildMasterPrompt(params, lastLensUsed, refreshNote);
 }
