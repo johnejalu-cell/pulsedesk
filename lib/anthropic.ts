@@ -38,7 +38,7 @@ export async function generateMagazineIssue(
   const searchedSectionsPrompt = `${prompt}
 
 You must use web search to find real current information.
-Return ONLY a raw JSON object with exactly these 4 top-level keys: hero, industry_news, regulatory, market_data.
+Return ONLY a raw JSON object with exactly these 5 top-level keys: hero, pulse_lens, industry_news, regulatory, market_data.
 Do NOT wrap in markdown. Do NOT add any text before or after.
 Do NOT nest under an 'issue' key.
 Your response must start with { and end with }.`;
@@ -49,7 +49,7 @@ Return ONLY a JSON object with these 6 keys: trends, best_practices, case_study,
 Use your training knowledge — no web search needed for these sections.
 Start immediately with { and end with }. No other text.`;
 
-  // Call 1: Web search for current sections
+  // Call 1: Web search for current sections + Pulse Lens (anchored to hero)
   const [searchedResponse, trainingResponse] = await Promise.all([
     anthropic.messages.create({
       model,
@@ -104,6 +104,23 @@ Start immediately with { and end with }. No other text.`;
     throw new Error('Failed to parse training sections. Raw: ' + trainingText.slice(0, 200));
   }
 
+  // Defensive fallback: if pulse_lens is missing or malformed despite
+  // being required, don't fail the whole generation — just omit it.
+  // A missing Pulse Lens on one issue is recoverable; a failed
+  // generation is not.
+  let pulseLens: MagazineIssue['pulse_lens'] | undefined;
+  try {
+    if (
+      searchedContent.pulse_lens &&
+      typeof searchedContent.pulse_lens.text === 'string' &&
+      typeof searchedContent.pulse_lens.lens_used === 'string'
+    ) {
+      pulseLens = searchedContent.pulse_lens;
+    }
+  } catch {
+    pulseLens = undefined;
+  }
+
   // Merge both into one issue
   const now = new Date().toISOString();
   const issue: MagazineIssue = {
@@ -117,6 +134,7 @@ Start immediately with { and end with }. No other text.`;
     industry_news: searchedContent.industry_news,
     regulatory: searchedContent.regulatory,
     market_data: searchedContent.market_data,
+    pulse_lens: pulseLens,
     // Training data sections
     trends: trainingContent.trends,
     best_practices: trainingContent.best_practices,
