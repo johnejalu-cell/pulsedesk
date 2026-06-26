@@ -12,6 +12,7 @@ const PLANS = [
       '4 issues per month, generate anytime',
       'Global, continental & local news',
       'Full 10-section magazine format',
+      'Pulse Lens on every issue',
       'Press Clippings — track 1 term',
       'Content history',
       'Mobile + desktop access',
@@ -29,6 +30,7 @@ const PLANS = [
       '12 issues per month, generate anytime',
       'Up to 5 professional verticals',
       'Global, continental & local news',
+      'Pulse Lens on every issue',
       'Press Clippings — track 3 terms',
       'Priority processing',
       'Full content history',
@@ -46,6 +48,7 @@ const PLANS = [
       '40 issues per month, generate anytime',
       'Unlimited verticals',
       'Global, continental & local news',
+      'Pulse Lens on every issue',
       'Press Clippings — track 10 terms',
       'Priority support',
     ],
@@ -182,4 +185,3 @@ export default function PricingPage() {
     </div>
   );
 }
-
