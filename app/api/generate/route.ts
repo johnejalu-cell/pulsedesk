@@ -126,6 +126,7 @@ export async function POST(req: NextRequest) {
     .maybeSingle();
 
   const previousHeadline = previousItem?.content?.hero?.headline;
+  const lastLensUsed = previousItem?.content?.pulse_lens?.lens_used || null;
   const countryData = getCountryByCode(profile?.country || 'US');
 
   const promptParams = {
@@ -138,8 +139,8 @@ export async function POST(req: NextRequest) {
   };
 
   const prompt = previousHeadline
-    ? buildRefreshPrompt(promptParams, previousHeadline)
-    : buildMasterPrompt(promptParams);
+    ? buildRefreshPrompt(promptParams, previousHeadline, lastLensUsed)
+    : buildMasterPrompt(promptParams, lastLensUsed);
 
   try {
     const { issue, tokensUsed, model } = await generateMagazineIssue(
