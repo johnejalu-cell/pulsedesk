@@ -1,9 +1,7 @@
 // types/index.ts — PulseDesk shared types
-
 export type UserRole = 'user' | 'admin';
 export type SubscriptionTier = 'starter' | 'pro' | 'enterprise';
 export type SubscriptionStatus = 'active' | 'trialing' | 'past_due' | 'canceled' | 'incomplete';
-
 export interface Profile {
   id: string;
   email: string | null;
@@ -17,7 +15,6 @@ export interface Profile {
   created_at: string;
   updated_at: string;
 }
-
 export interface Subscription {
   id: string;
   user_id: string;
@@ -31,7 +28,6 @@ export interface Subscription {
   created_at: string;
   updated_at: string;
 }
-
 export interface Vertical {
   id: string;
   slug: string;
@@ -45,9 +41,7 @@ export interface Vertical {
   sort_order: number;
   created_at: string;
 }
-
 // ── AI Content Structure ──────────────────────────────────────
-
 export interface MagazineSection {
   title: string;
   subtitle?: string;
@@ -56,12 +50,18 @@ export interface MagazineSection {
   quote?: { text: string; attribution: string };
   cta?: string;
 }
-
 export interface MarketDataPoint {
   label: string;
   value: number;
   change?: number;    // percentage
   trend?: 'up' | 'down' | 'flat';
+}
+export type PulseLensType = 'historian' | 'outsider' | 'constraint' | 'apprentice';
+
+export interface PulseLens {
+  lens_used: PulseLensType;
+  lens_label: string;
+  text: string;
 }
 
 export interface MagazineIssue {
@@ -77,6 +77,7 @@ export interface MagazineIssue {
     summary: string;
     tags: string[];
   };
+  pulse_lens?: PulseLens;
   industry_news: {
     items: Array<{
       title: string;
@@ -117,7 +118,6 @@ export interface MagazineIssue {
     events?: Array<{ name: string; date: string; location: string }>;
   };
 }
-
 export interface FeedItem {
   id: string;
   user_id: string;
@@ -128,17 +128,13 @@ export interface FeedItem {
   expires_at: string | null;
   model_used: string | null;
 }
-
 // ── API Response types ────────────────────────────────────────
-
 export interface ApiSuccess<T> {
   data: T;
   error: null;
 }
-
 export interface ApiError {
   data: null;
   error: string;
 }
-
 export type ApiResponse<T> = ApiSuccess<T> | ApiError;
