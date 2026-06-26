@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import {
   Newspaper, TrendingUp, CheckSquare, Award, Brain,
-  Scale, BarChart3, MessageSquare, BookOpen, ArrowUpRight, ArrowDownRight, Minus
+  Scale, BarChart3, MessageSquare, BookOpen, ArrowUpRight, ArrowDownRight, Minus,
+  Sparkles, History, Users, AlertTriangle, GraduationCap
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import type { MagazineIssue } from '@/types';
@@ -11,6 +12,7 @@ import type { MagazineIssue } from '@/types';
 interface Props { issue: MagazineIssue }
 
 const SECTIONS = [
+  { key: 'pulse_lens', label: 'Pulse Lens', icon: Sparkles },
   { key: 'industry_news', label: 'News', icon: Newspaper },
   { key: 'trends', label: 'Trends', icon: TrendingUp },
   { key: 'best_practices', label: 'Best Practices', icon: CheckSquare },
@@ -22,8 +24,23 @@ const SECTIONS = [
   { key: 'resources', label: 'Resources', icon: BookOpen },
 ] as const;
 
+const LENS_ICONS: Record<string, any> = {
+  historian: History,
+  outsider: Users,
+  constraint: AlertTriangle,
+  apprentice: GraduationCap,
+};
+
 export default function IssueViewer({ issue }: Props) {
-  const [activeSection, setActiveSection] = useState('industry_news');
+  const [activeSection, setActiveSection] = useState(
+    issue.pulse_lens ? 'pulse_lens' : 'industry_news'
+  );
+
+  // If pulse_lens wasn't generated for this issue (rare fallback case),
+  // don't show the tab at all rather than showing an empty/broken section.
+  const visibleSections = issue.pulse_lens
+    ? SECTIONS
+    : SECTIONS.filter(s => s.key !== 'pulse_lens');
 
   return (
     <div className="space-y-6">
@@ -41,7 +58,7 @@ export default function IssueViewer({ issue }: Props) {
 
       {/* Section tabs */}
       <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-none">
-        {SECTIONS.map(s => (
+        {visibleSections.map(s => (
           <button
             key={s.key}
             onClick={() => setActiveSection(s.key)}
@@ -59,6 +76,7 @@ export default function IssueViewer({ issue }: Props) {
 
       {/* Section content */}
       <div className="bg-white border border-slate-200 rounded-2xl p-6">
+        {activeSection === 'pulse_lens' && issue.pulse_lens && <PulseLensSection data={issue.pulse_lens} />}
         {activeSection === 'industry_news' && <NewsSection data={issue.industry_news} />}
         {activeSection === 'trends' && <TextSection data={issue.trends} />}
         {activeSection === 'best_practices' && <BestPracticesSection data={issue.best_practices} />}
@@ -69,6 +87,29 @@ export default function IssueViewer({ issue }: Props) {
         {activeSection === 'opinion' && <OpinionSection data={issue.opinion} />}
         {activeSection === 'resources' && <ResourcesSection data={issue.resources} />}
       </div>
+    </div>
+  );
+}
+
+function PulseLensSection({ data }: { data: NonNullable<MagazineIssue['pulse_lens']> }) {
+  const LensIcon = LENS_ICONS[data.lens_used] || Sparkles;
+  return (
+    <div>
+      <div className="flex items-center gap-3 mb-5">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center flex-shrink-0">
+          <LensIcon className="h-5 w-5 text-white" />
+        </div>
+        <div>
+          <p className="text-xs font-semibold text-purple-600 uppercase tracking-wider">Pulse Lens</p>
+          <h3 className="text-lg font-bold text-slate-900">{data.lens_label}</h3>
+        </div>
+      </div>
+      <div className="bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-100 rounded-2xl p-6">
+        <p className="text-slate-700 leading-relaxed text-[15px]">{data.text}</p>
+      </div>
+      <p className="text-xs text-slate-400 mt-4">
+        A different lens — Historian, Outsider, Constraint, or Apprentice — reframes your lead story every issue.
+      </p>
     </div>
   );
 }
