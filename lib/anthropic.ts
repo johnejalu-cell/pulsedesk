@@ -53,7 +53,7 @@ Start immediately with { and end with }. No other text.`;
   const [searchedResponse, trainingResponse] = await Promise.all([
     anthropic.messages.create({
       model,
-      max_tokens: 8000,
+      max_tokens: 10000,
       system: SYSTEM_JSON + ' Use web search to find real current information before generating.',
       tools: [
         {
@@ -94,8 +94,16 @@ Start immediately with { and end with }. No other text.`;
 
   try {
     searchedContent = extractJSON(searchedText);
-  } catch {
-    throw new Error('Failed to parse searched sections. Raw: ' + searchedText.slice(0, 200));
+    console.log('[pulse_lens] Top-level keys in searched response:', Object.keys(searchedContent));
+  } catch (err) {
+    console.log('[PARSE_FAIL] length=' + searchedText.length);
+    console.log('[PARSE_FAIL] first100=' + searchedText.slice(0, 100));
+    console.log('[PARSE_FAIL] last100=' + searchedText.slice(-100));
+    console.log('[PARSE_FAIL] err=' + (err as Error).message);
+    throw new Error(
+      'Failed to parse searched sections (length=' + searchedText.length + '). ' +
+      'Ends with: "' + searchedText.slice(-80) + '"'
+    );
   }
 
   try {
@@ -116,8 +124,11 @@ Start immediately with { and end with }. No other text.`;
       typeof searchedContent.pulse_lens.lens_used === 'string'
     ) {
       pulseLens = searchedContent.pulse_lens;
+    } else {
+      console.log('[pulse_lens] Field missing or malformed. Raw value:', JSON.stringify(searchedContent.pulse_lens));
     }
-  } catch {
+  } catch (err) {
+    console.log('[pulse_lens] Validation threw an error:', err);
     pulseLens = undefined;
   }
 
