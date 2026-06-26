@@ -189,6 +189,11 @@ export async function POST(req: NextRequest) {
       success: true,
       issue,
       freeIssuesUsed: hasActiveSubscription ? null : freeIssuesUsed + 1,
+      _debug: {
+        pulse_lens_present: !!issue.pulse_lens,
+        pulse_lens_value: issue.pulse_lens || null,
+        lastLensUsedSent: lastLensUsed,
+      },
     });
 
   } catch (err: any) {
