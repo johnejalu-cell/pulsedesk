@@ -1,6 +1,6 @@
 // app/page.tsx — Pulse Department Landing Page
 import Link from 'next/link';
-import { ArrowRight, Globe, Zap, BarChart3, Users, CheckCircle, TrendingUp, Newspaper } from 'lucide-react';
+import { ArrowRight, Globe, Zap, BarChart3, Users, CheckCircle, TrendingUp, Newspaper, Sparkles } from 'lucide-react';
 
 const VERTICALS = [
   'Business & Management', 'Technology & IT', 'Finance & Investment',
@@ -29,6 +29,11 @@ const FEATURES = [
     title: 'Multi-Profession Support',
     desc: 'Subscribe to multiple verticals. One dashboard, all your professional worlds.',
   },
+  {
+    icon: Sparkles,
+    title: 'Pulse Lens',
+    desc: "Every issue, your lead story gets reframed through a rotating expert lens — Historian, Outsider, Constraint, or Apprentice — for a genuinely fresh angle no generic AI prompt gives you.",
+  },
 ];
 
 const PLANS = [
@@ -37,7 +42,7 @@ const PLANS = [
     price: '$10',
     period: '/month',
     verticals: '1 vertical',
-    features: ['4 issues per month, generate anytime', 'Global, continental & local news', 'Full 10-section magazine format', 'Press Clippings — track 1 term', 'Mobile + desktop access'],
+    features: ['4 issues per month, generate anytime', 'Global, continental & local news', 'Full 10-section magazine format', 'Pulse Lens on every issue', 'Press Clippings — track 1 term', 'Mobile + desktop access'],
     cta: 'View pricing',
     highlight: false,
   },
@@ -46,7 +51,7 @@ const PLANS = [
     price: '$25',
     period: '/month',
     verticals: 'Up to 5 verticals',
-    features: ['12 issues per month, generate anytime', 'Up to 5 professional verticals', 'Press Clippings — track 3 terms', 'Priority processing', 'Full content history'],
+    features: ['12 issues per month, generate anytime', 'Up to 5 professional verticals', 'Pulse Lens on every issue', 'Press Clippings — track 3 terms', 'Priority processing', 'Full content history'],
     cta: 'View pricing',
     highlight: true,
   },
@@ -55,7 +60,7 @@ const PLANS = [
     price: '$75',
     period: '/month',
     verticals: 'Unlimited verticals',
-    features: ['40 issues per month, generate anytime', 'Unlimited verticals', 'Press Clippings — track 10 terms', 'Global, continental & local news', 'Priority support'],
+    features: ['40 issues per month, generate anytime', 'Unlimited verticals', 'Pulse Lens on every issue', 'Press Clippings — track 10 terms', 'Global, continental & local news', 'Priority support'],
     cta: 'View pricing',
     highlight: false,
   },
@@ -140,7 +145,7 @@ export default function LandingPage() {
             <h2 className="text-3xl font-bold text-slate-900 mb-4">Intelligence that works like you do</h2>
             <p className="text-lg text-slate-500 max-w-xl mx-auto">Built for professionals who need to stay sharp without spending hours reading.</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
             {FEATURES.map(f => (
               <div key={f.title} className="p-6 rounded-2xl border border-slate-100 hover:border-blue-100 hover:shadow-sm transition-all">
                 <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mb-4">
@@ -283,4 +288,3 @@ export default function LandingPage() {
     </div>
   );
 }
-
