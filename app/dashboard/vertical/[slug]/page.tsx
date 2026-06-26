@@ -1,6 +1,14 @@
 'use client';
 import { useEffect, useState, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { Sparkles, History, Users, AlertTriangle, GraduationCap } from 'lucide-react';
+
+const LENS_ICONS: Record<string, any> = {
+  historian: History,
+  outsider: Users,
+  constraint: AlertTriangle,
+  apprentice: GraduationCap,
+};
 
 export default function VerticalPage({ params }: { params: { slug: string } }) {
   const { slug } = params;
@@ -64,7 +72,10 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
         .from('feed_items').select('*').eq('user_id', user.id)
         .eq('vertical_slug', slug).order('generated_at', { ascending: false })
         .limit(1).maybeSingle();
-      if (latest) setIssue(latest.content);
+      if (latest) {
+        setIssue(latest.content);
+        setActiveSection(latest.content?.pulse_lens ? 'pulse_lens' : 'industry_news');
+      }
 
       // Check subscription and free issues
       const { data: sub } = await supabase
@@ -80,7 +91,6 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
   }, [slug]);
 
   async function generate() {
-    // Check paywall before generating
     if (!hasSubscription && (freeIssuesUsed ?? 0) >= 3) {
       setShowPaywall(true);
       return;
@@ -108,6 +118,7 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
       if (!res.ok) throw new Error(data.error || 'Generation failed');
       stopProgress();
       setIssue(data.issue);
+      setActiveSection(data.issue?.pulse_lens ? 'pulse_lens' : 'industry_news');
       if (data.freeIssuesUsed !== null) setFreeIssuesUsed(data.freeIssuesUsed);
     } catch (e: any) {
       stopProgress();
@@ -119,7 +130,6 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
 
   if (loading) return <div className="p-4 text-slate-400">Loading...</div>;
 
-  // Paywall modal
   if (showPaywall) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
@@ -155,7 +165,6 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
 
   return (
     <div className="w-full">
-      {/* Header */}
       <div className="flex items-start justify-between p-4 gap-3">
         <div className="flex-1 min-w-0">
           <div className="inline-block text-xs font-semibold px-3 py-1 rounded-full mb-2 bg-blue-100 text-blue-700">
@@ -181,7 +190,6 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
         </div>
       </div>
 
-      {/* Progress indicator */}
       {generating && progress > 0 && (
         <div className="mx-4 mb-2 bg-white border border-slate-200 rounded-2xl p-4">
           <div className="flex items-center justify-between mb-2">
@@ -199,7 +207,6 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
 
       {issue ? (
         <div className="space-y-4">
-          {/* Hero with image */}
           <div className="mx-4 rounded-2xl overflow-hidden">
             {issue.hero?.image_url && (
               <div className="relative h-40 sm:h-52">
@@ -223,9 +230,9 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
             </div>
           </div>
 
-          {/* Section tabs */}
           <div className="flex gap-1.5 overflow-x-auto px-4 pb-1 scrollbar-none">
             {[
+              ...(issue.pulse_lens ? [{ key: 'pulse_lens', label: 'Pulse Lens' }] : []),
               { key: 'industry_news', label: 'News' },
               { key: 'trends', label: 'Trends' },
               { key: 'best_practices', label: 'Best Practices' },
@@ -250,8 +257,29 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
             ))}
           </div>
 
-          {/* Section content */}
           <div className="bg-white border-t border-b border-slate-200 p-4 sm:mx-4 sm:rounded-2xl sm:border">
+            {activeSection === 'pulse_lens' && issue.pulse_lens && (() => {
+              const LensIcon = LENS_ICONS[issue.pulse_lens.lens_used] || Sparkles;
+              return (
+                <div>
+                  <div className="flex items-center gap-2.5 mb-4">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center flex-shrink-0">
+                      <LensIcon className="h-4 w-4 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-purple-600 uppercase tracking-wider">Pulse Lens</p>
+                      <h3 className="text-base font-bold text-slate-900">{issue.pulse_lens.lens_label}</h3>
+                    </div>
+                  </div>
+                  <div className="bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-100 rounded-xl p-4">
+                    <p className="text-slate-700 leading-relaxed text-sm">{issue.pulse_lens.text}</p>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-3">
+                    A different lens reframes your lead story every issue.
+                  </p>
+                </div>
+              );
+            })()}
             {activeSection === 'industry_news' && (
               <div>
                 <h3 className="text-base font-bold text-slate-900 mb-4">Industry News</h3>
