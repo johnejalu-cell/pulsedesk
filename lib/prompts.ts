@@ -52,19 +52,29 @@ const PULSE_LENS_DEFINITIONS: Record<PulseLensType, { label: string; instruction
 
 const ALL_LENSES: PulseLensType[] = ['historian', 'outsider', 'constraint', 'apprentice'];
 
-function buildPulseLensBlock(lastLensUsed: PulseLensType | null): string {
-  const available = lastLensUsed
-    ? ALL_LENSES.filter(l => l !== lastLensUsed)
-    : ALL_LENSES;
+/**
+ * Deterministically picks the next lens in a fixed rotation, based on
+ * the lens used last issue. This guarantees even distribution across
+ * all 4 lenses over time — Claude is told which lens to apply, not
+ * asked to choose, since letting the model choose freely was found to
+ * produce a strong, repeated bias toward only 1-2 of the 4 options.
+ */
+export function getNextLens(lastLensUsed: PulseLensType | null): PulseLensType {
+  if (!lastLensUsed) return ALL_LENSES[0];
+  const lastIndex = ALL_LENSES.indexOf(lastLensUsed);
+  const nextIndex = (lastIndex + 1) % ALL_LENSES.length;
+  return ALL_LENSES[nextIndex];
+}
 
-  const menu = available
-    .map(l => `"${l}" (${PULSE_LENS_DEFINITIONS[l].label}: ${PULSE_LENS_DEFINITIONS[l].instruction})`)
-    .join(' OR ');
+function buildPulseLensBlock(lastLensUsed: PulseLensType | null): string {
+  const nextLens = getNextLens(lastLensUsed);
+  const def = PULSE_LENS_DEFINITIONS[nextLens];
 
   return `pulse_lens:
-- lens_used, lens_label, text (80-150 words, plain prose, reframing the hero story)
-- Choose ONE: ${menu}
-- Not "${lastLensUsed ?? 'none yet'}" (used last issue)`;
+- lens_used: "${nextLens}" (always use this exact value — it is fixed for this issue, not a choice)
+- lens_label: "${def.label}"
+- text: 80-150 words, plain prose, reframing the hero story
+- Apply ${def.label}: ${def.instruction}`;
 }
 
 export function buildMasterPrompt(
@@ -112,7 +122,7 @@ resources:
 - reading: array of 2 items (title, author, description)
 ${extraNote}
 ${pulseLensBlock}
-The pulse_lens field is mandatory. A response without it is incomplete and incorrect — include it every time, no exceptions.`;
+The pulse_lens field is mandatory and lens_used must be exactly the value specified above — do not substitute a different lens. A response without it, or with the wrong lens_used, is incomplete and incorrect.`;
 }
 
 export function buildRefreshPrompt(
