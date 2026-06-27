@@ -1,13 +1,23 @@
 'use client';
 import { useEffect, useState, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Sparkles, History, Users, AlertTriangle, GraduationCap } from 'lucide-react';
+import { Sparkles, History, Users, AlertTriangle, GraduationCap, Lightbulb, Newspaper, Award, BarChart3, Scale, MessageSquare } from 'lucide-react';
 
 const LENS_ICONS: Record<string, any> = {
   historian: History,
   outsider: Users,
   constraint: AlertTriangle,
   apprentice: GraduationCap,
+};
+
+const SYNTHESIS_CATEGORY_ICONS: Record<string, any> = {
+  news_global: Newspaper,
+  news_continental: Newspaper,
+  news_local: Newspaper,
+  case_study: Award,
+  market_data: BarChart3,
+  regulatory: Scale,
+  opinion: MessageSquare,
 };
 
 export default function VerticalPage({ params }: { params: { slug: string } }) {
@@ -77,7 +87,6 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
         setActiveSection(latest.content?.pulse_lens ? 'pulse_lens' : 'industry_news');
       }
 
-      // Check subscription and free issues
       const { data: sub } = await supabase
         .from('subscriptions')
         .select('tier')
@@ -233,6 +242,7 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
           <div className="flex gap-1.5 overflow-x-auto px-4 pb-1 scrollbar-none">
             {[
               ...(issue.pulse_lens ? [{ key: 'pulse_lens', label: 'Pulse Lens' }] : []),
+              ...(issue.pulse_synthesis ? [{ key: 'pulse_synthesis', label: 'Pulse Synthesis' }] : []),
               { key: 'industry_news', label: 'News' },
               { key: 'trends', label: 'Trends' },
               { key: 'best_practices', label: 'Best Practices' },
@@ -276,6 +286,58 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
                   </div>
                   <p className="text-xs text-slate-400 mt-3">
                     A different lens reframes your lead story every issue.
+                  </p>
+                </div>
+              );
+            })()}
+            {activeSection === 'pulse_synthesis' && issue.pulse_synthesis && (() => {
+              const s = issue.pulse_synthesis;
+              const IconA = SYNTHESIS_CATEGORY_ICONS[s.source_a_category] || Lightbulb;
+              const IconB = SYNTHESIS_CATEGORY_ICONS[s.source_b_category] || Lightbulb;
+              return (
+                <div>
+                  <div className="flex items-center gap-2.5 mb-4">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center flex-shrink-0">
+                      <Lightbulb className="h-4 w-4 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-amber-600 uppercase tracking-wider">Pulse Synthesis</p>
+                      <h3 className="text-base font-bold text-slate-900">A connection worth exploring</h3>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 mb-4 flex-wrap">
+                    <span className="inline-flex items-center gap-1.5 text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full">
+                      <IconA className="h-3 w-3" />
+                      {s.source_a_label}
+                    </span>
+                    <span className="text-slate-400 text-xs">+</span>
+                    <span className="inline-flex items-center gap-1.5 text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full">
+                      <IconB className="h-3 w-3" />
+                      {s.source_b_label}
+                    </span>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100 rounded-xl p-4 space-y-3">
+                    <div>
+                      <p className="text-xs font-semibold text-amber-700 uppercase tracking-wider mb-1">The Seed</p>
+                      <p className="text-sm text-slate-700 leading-relaxed">{s.seed}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-amber-700 uppercase tracking-wider mb-1">The Proposal</p>
+                      <p className="text-sm text-slate-700 leading-relaxed">{s.proposal}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-amber-700 uppercase tracking-wider mb-1">Why Now</p>
+                      <p className="text-sm text-slate-700 leading-relaxed">{s.why_now}</p>
+                    </div>
+                    <div className="pt-2 border-t border-amber-100">
+                      <p className="text-xs font-semibold text-amber-700 uppercase tracking-wider mb-1">The Catch</p>
+                      <p className="text-sm text-slate-700 leading-relaxed">{s.the_catch}</p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-3">
+                    Every issue, we connect two unrelated stories into a hybrid concept worth exploring.
                   </p>
                 </div>
               );
