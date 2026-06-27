@@ -7,7 +7,7 @@ export interface Profile {
   email: string | null;
   full_name: string | null;
   avatar_url: string | null;
-  country: string | null;       // ISO code
+  country: string | null;
   country_name: string | null;
   professions: string[];
   role: UserRole;
@@ -53,17 +53,30 @@ export interface MagazineSection {
 export interface MarketDataPoint {
   label: string;
   value: number;
-  change?: number;    // percentage
+  change?: number;
   trend?: 'up' | 'down' | 'flat';
 }
 export type PulseLensType = 'historian' | 'outsider' | 'constraint' | 'apprentice';
-
 export interface PulseLens {
   lens_used: PulseLensType;
   lens_label: string;
   text: string;
 }
+export type PulseSynthesisCategory =
+  | 'news_global' | 'news_continental' | 'news_local'
+  | 'case_study' | 'market_data' | 'regulatory' | 'opinion';
 
+export interface PulseSynthesis {
+  source_a_label: string;
+  source_a_category: PulseSynthesisCategory;
+  source_b_label: string;
+  source_b_category: PulseSynthesisCategory;
+  relatedness: 'low' | 'medium' | 'high';
+  seed: string;
+  proposal: string;
+  why_now: string;
+  the_catch: string;
+}
 export interface MagazineIssue {
   vertical_slug: string;
   vertical_name: string;
@@ -78,12 +91,14 @@ export interface MagazineIssue {
     tags: string[];
   };
   pulse_lens?: PulseLens;
+  pulse_synthesis?: PulseSynthesis;
   industry_news: {
     items: Array<{
       title: string;
       summary: string;
       source?: string;
       local?: boolean;
+      scope?: 'global' | 'continental' | 'local';
     }>;
   };
   trends: MagazineSection;
