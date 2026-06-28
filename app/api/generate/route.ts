@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
   const hasActiveSubscription = !!subscription?.tier;
   const freeIssuesUsed = profile?.free_issues_used || 0;
 
-  // Free tier check — 1 free issue for users without subscription
+  // Free tier check - 1 free issue for users without subscription
   if (!hasActiveSubscription && freeIssuesUsed >= FREE_ISSUE_LIMIT) {
     return NextResponse.json(
       { error: 'FREE_LIMIT_REACHED', message: 'You have used your free issue. Please subscribe to continue.' },
@@ -143,7 +143,7 @@ export async function POST(req: NextRequest) {
     : buildMasterPrompt(promptParams, lastLensUsed);
 
   try {
-    const { issue, tokensUsed, model } = await generateMagazineIssue(
+    const { issue, tokensUsed, model, synthesisDebugTrace } = await generateMagazineIssue(
       prompt,
       verticalSlug,
       vertical.name,
@@ -189,6 +189,7 @@ export async function POST(req: NextRequest) {
       success: true,
       issue,
       freeIssuesUsed: hasActiveSubscription ? null : freeIssuesUsed + 1,
+      _debug_pulse_synthesis: synthesisDebugTrace,
     });
 
   } catch (err: any) {
