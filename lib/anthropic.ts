@@ -103,9 +103,13 @@ function isDisallowedPair(catA: PulseSynthesisCategory, catB: PulseSynthesisCate
 }
 
 async function selectSynthesisPair(
-  pool: PoolItem[]
+  pool: PoolItem[],
+  debugTrace: any
 ): Promise<{ idA: string; idB: string; relatedness: 'low' | 'medium' | 'high'; tokensUsed: number } | undefined> {
-  if (pool.length < 2) return undefined;
+  if (pool.length < 2) {
+    debugTrace.stage1Error = 'pool_too_small';
+    return undefined;
+  }
 
   const poolListing = pool
     .map((p, i) => `${i + 1}. [Category: ${p.category}] (id: ${p.id}) ${p.text}`)
@@ -142,26 +146,45 @@ Return ONLY a raw JSON object with this exact shape, nothing else:
       .map((b: any) => b.text)
       .join('');
 
+    debugTrace.stage1RawResponse = text.slice(0, 300);
+
     const parsed = extractJSON(text);
     const idA = parsed.id_a;
     const idB = parsed.id_b;
     const relatedness = parsed.relatedness;
 
+    debugTrace.stage1Parsed = { idA, idB, relatedness };
+
     const itemA = pool.find(p => p.id === idA);
     const itemB = pool.find(p => p.id === idB);
-    if (!itemA || !itemB || itemA.id === itemB.id) return undefined;
-    if (isDisallowedPair(itemA.category, itemB.category)) return undefined;
-    if (!['low', 'medium', 'high'].includes(relatedness)) return undefined;
+    if (!itemA || !itemB || itemA.id === itemB.id) {
+      debugTrace.stage1Error = 'item_not_found_or_duplicate';
+      debugTrace.stage1ErrorDetail = { itemAFound: !!itemA, itemBFound: !!itemB };
+      return undefined;
+    }
+    if (isDisallowedPair(itemA.category, itemB.category)) {
+      debugTrace.stage1Error = 'disallowed_category_pair';
+      debugTrace.stage1ErrorDetail = { catA: itemA.category, catB: itemB.category };
+      return undefined;
+    }
+    if (!['low', 'medium', 'high'].includes(relatedness)) {
+      debugTrace.stage1Error = 'invalid_relatedness_value';
+      debugTrace.stage1ErrorDetail = { relatedness };
+      return undefined;
+    }
 
     return { idA, idB, relatedness, tokensUsed: callTokens };
-  } catch {
+  } catch (err) {
+    debugTrace.stage1Error = 'threw_exception';
+    debugTrace.stage1ErrorDetail = (err as Error).message;
     return undefined;
   }
 }
 
 async function writeConceptNote(
   itemA: PoolItem,
-  itemB: PoolItem
+  itemB: PoolItem,
+  debugTrace: any
 ): Promise<{ seed: string; proposal: string; why_now: string; the_catch: string; tokensUsed: number } | undefined> {
   const prompt = `Source A: ${itemA.text}
 
@@ -194,6 +217,8 @@ Start with { and end with }.`;
       .map((b: any) => b.text)
       .join('');
 
+    debugTrace.stage2RawResponse = text.slice(0, 300);
+
     const parsed = extractJSON(text);
     if (
       typeof parsed.seed !== 'string' ||
@@ -201,10 +226,14 @@ Start with { and end with }.`;
       typeof parsed.why_now !== 'string' ||
       typeof parsed.the_catch !== 'string'
     ) {
+      debugTrace.stage2Error = 'missing_or_wrong_type_field';
+      debugTrace.stage2ErrorDetail = { keys: Object.keys(parsed) };
       return undefined;
     }
     return { ...parsed, tokensUsed: callTokens };
-  } catch {
+  } catch (err) {
+    debugTrace.stage2Error = 'threw_exception';
+    debugTrace.stage2ErrorDetail = (err as Error).message;
     return undefined;
   }
 }
@@ -213,21 +242,35 @@ Start with { and end with }.`;
  * Runs the full Pulse Synthesis pipeline (selection + concept note) on
  * an already-generated issue. Returns undefined on any failure at any
  * stage - never throws, since this is an enhancement, not a required
- * part of issue generation.
+ * part of issue generation. Also returns a debug trace for temporary
+ * diagnostic visibility via the API response (see route.ts _debug field).
  */
 export async function generatePulseSynthesis(
   issue: Partial<MagazineIssue>
-): Promise<{ synthesis: MagazineIssue['pulse_synthesis']; tokensUsed: number }> {
+): Promise<{ synthesis: MagazineIssue['pulse_synthesis']; tokensUsed: number; debugTrace: any }> {
   const pool = buildPool(issue);
+  const debugTrace: any = {
+    poolSize: pool.length,
+    poolItems: pool.map(p => ({ id: p.id, category: p.category })),
+  };
 
-  const selection = await selectSynthesisPair(pool);
-  if (!selection) return { synthesis: undefined, tokensUsed: 0 };
+  const selection = await selectSynthesisPair(pool, debugTrace);
+  if (!selection) {
+    debugTrace.outcome = 'stage1_failed';
+    return { synthesis: undefined, tokensUsed: 0, debugTrace };
+  }
 
   const itemA = pool.find(p => p.id === selection.idA)!;
   const itemB = pool.find(p => p.id === selection.idB)!;
+  debugTrace.selectedPair = { idA: selection.idA, idB: selection.idB, relatedness: selection.relatedness };
 
-  const note = await writeConceptNote(itemA, itemB);
-  if (!note) return { synthesis: undefined, tokensUsed: selection.tokensUsed };
+  const note = await writeConceptNote(itemA, itemB, debugTrace);
+  if (!note) {
+    debugTrace.outcome = 'stage2_failed';
+    return { synthesis: undefined, tokensUsed: selection.tokensUsed, debugTrace };
+  }
+
+  debugTrace.outcome = 'success';
 
   const synthesis: MagazineIssue['pulse_synthesis'] = {
     source_a_label: itemA.label,
@@ -241,7 +284,7 @@ export async function generatePulseSynthesis(
     the_catch: note.the_catch,
   };
 
-  return { synthesis, tokensUsed: selection.tokensUsed + note.tokensUsed };
+  return { synthesis, tokensUsed: selection.tokensUsed + note.tokensUsed, debugTrace };
 }
 
 // =====================================================================
@@ -255,7 +298,7 @@ export async function generateMagazineIssue(
   verticalName: string,
   country: string,
   countryName: string
-): Promise<{ issue: MagazineIssue; tokensUsed: number; model: string }> {
+): Promise<{ issue: MagazineIssue; tokensUsed: number; model: string; synthesisDebugTrace: any }> {
   const model = 'claude-sonnet-4-6';
 
   const searchedSectionsPrompt = `${prompt}
@@ -312,19 +355,29 @@ Start immediately with { and end with }. No other text.`;
   let searchedContent: any;
   let trainingContent: any;
 
+  const partialTokensUsed =
+    searchedResponse.usage.input_tokens +
+    searchedResponse.usage.output_tokens +
+    trainingResponse.usage.input_tokens +
+    trainingResponse.usage.output_tokens;
+
   try {
     searchedContent = extractJSON(searchedText);
   } catch (err) {
-    throw new Error(
+    const e = new Error(
       'Failed to parse searched sections (length=' + searchedText.length + '). ' +
       'Ends with: "' + searchedText.slice(-80) + '"'
     );
+    (e as any).tokensUsed = partialTokensUsed;
+    throw e;
   }
 
   try {
     trainingContent = extractJSON(trainingText);
   } catch {
-    throw new Error('Failed to parse training sections. Raw: ' + trainingText.slice(0, 200));
+    const e = new Error('Failed to parse training sections. Raw: ' + trainingText.slice(0, 200));
+    (e as any).tokensUsed = partialTokensUsed;
+    throw e;
   }
 
   let pulseLens: MagazineIssue['pulse_lens'] | undefined;
@@ -363,15 +416,18 @@ Start immediately with { and end with }. No other text.`;
   // Pulse Synthesis runs AFTER the issue's own content exists, since it
   // needs that content as its source pool. Failure here never affects
   // the rest of the issue - it's purely additive.
+  let synthesisDebugTrace: any = { outcome: 'not_attempted' };
   try {
-    const { synthesis, tokensUsed: synthesisTokens } = await generatePulseSynthesis(issue);
+    const { synthesis, tokensUsed: synthesisTokens, debugTrace } = await generatePulseSynthesis(issue);
     issue.pulse_synthesis = synthesis;
     tokensUsed += synthesisTokens;
-  } catch {
+    synthesisDebugTrace = debugTrace;
+  } catch (err) {
     issue.pulse_synthesis = undefined;
+    synthesisDebugTrace = { outcome: 'threw_outside_pipeline', error: (err as Error).message };
   }
 
-  return { issue, tokensUsed, model };
+  return { issue, tokensUsed, model, synthesisDebugTrace };
 }
 
 export { anthropic };
