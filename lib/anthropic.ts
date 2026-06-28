@@ -366,7 +366,12 @@ Start immediately with { and end with }. No other text.`;
   const [searchedResponse, trainingResponse] = await Promise.all([
     anthropic.messages.create({
       model,
-      max_tokens: 10000,
+      // Raised from 10000 - this call spends tokens on web_search tool
+      // calls and search result content BEFORE it writes the final JSON,
+      // so it needs more headroom than the training-only call below,
+      // not less. Hit truncation on an education-vertical refresh at
+      // length=30526 with this still at 10000.
+      max_tokens: 16000,
       system: SYSTEM_JSON + ' Use web search to find real current information before generating.',
       tools: [
         {
@@ -486,3 +491,4 @@ Start immediately with { and end with }. No other text.`;
 }
 
 export { anthropic };
+
