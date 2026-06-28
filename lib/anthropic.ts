@@ -15,9 +15,57 @@ function extractJSON(rawText: string): any {
     .trim();
 
   const firstBrace = cleaned.indexOf('{');
-  const lastBrace = cleaned.lastIndexOf('}');
-  if (firstBrace !== -1 && lastBrace !== -1) {
-    cleaned = cleaned.slice(firstBrace, lastBrace + 1);
+  if (firstBrace === -1) {
+    // No object found at all - let JSON.parse throw its own error below.
+    return JSON.parse(cleaned);
+  }
+
+  // Walk forward from the first '{' tracking brace depth (respecting
+  // strings/escapes) to find the END of the FIRST complete JSON object,
+  // rather than naively slicing to the LAST '}' in the text. This matters
+  // because the model occasionally emits a second, corrected JSON object
+  // after the first (e.g. "{...}\n\n{...}" - a self-correction pattern),
+  // which the old last-brace approach would concatenate into one invalid
+  // string. We only ever want the first complete object.
+  let depth = 0;
+  let inString = false;
+  let escapeNext = false;
+  let endIndex = -1;
+
+  for (let i = firstBrace; i < cleaned.length; i++) {
+    const ch = cleaned[i];
+
+    if (escapeNext) {
+      escapeNext = false;
+      continue;
+    }
+    if (ch === '\\' && inString) {
+      escapeNext = true;
+      continue;
+    }
+    if (ch === '"') {
+      inString = !inString;
+      continue;
+    }
+    if (inString) continue;
+
+    if (ch === '{') depth++;
+    else if (ch === '}') {
+      depth--;
+      if (depth === 0) {
+        endIndex = i;
+        break;
+      }
+    }
+  }
+
+  if (endIndex === -1) {
+    // Never closed - genuinely truncated. Slice what we have so the
+    // resulting JSON.parse error/message reflects the real failure
+    // rather than silently grabbing trailing garbage.
+    cleaned = cleaned.slice(firstBrace);
+  } else {
+    cleaned = cleaned.slice(firstBrace, endIndex + 1);
   }
 
   return JSON.parse(cleaned);
