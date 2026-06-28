@@ -330,7 +330,11 @@ Start immediately with { and end with }. No other text.`;
     }),
     anthropic.messages.create({
       model,
-      max_tokens: 8000,
+      // NOTE: this was stuck at 8000 for two sessions in a row despite
+      // being "fixed" - the searched-sections call above got bumped but
+      // this one didn't. This is the actual fix. Raised past 10000 to
+      // 12000 for real headroom, not just another marginal nudge.
+      max_tokens: 12000,
       system: SYSTEM_JSON,
       messages: [{ role: 'user', content: trainingDataPrompt }],
     }),
@@ -375,7 +379,10 @@ Start immediately with { and end with }. No other text.`;
   try {
     trainingContent = extractJSON(trainingText);
   } catch {
-    const e = new Error('Failed to parse training sections. Raw: ' + trainingText.slice(0, 200));
+    const e = new Error(
+      'Failed to parse training sections (length=' + trainingText.length + '). ' +
+      'Ends with: "' + trainingText.slice(-80) + '"'
+    );
     (e as any).tokensUsed = partialTokensUsed;
     throw e;
   }
