@@ -58,9 +58,21 @@ const ALL_LENSES: PulseLensType[] = ['historian', 'outsider', 'constraint', 'app
  * all 4 lenses over time — Claude is told which lens to apply, not
  * asked to choose, since letting the model choose freely was found to
  * produce a strong, repeated bias toward only 1-2 of the 4 options.
+ *
+ * For a vertical's first-ever issue (lastLensUsed === null), the
+ * starting lens is randomized rather than hardcoded to ALL_LENSES[0].
+ * Without this, every brand-new vertical's first issue would always
+ * land on the same lens (historian) — rotation is correct WITHIN a
+ * given vertical over time, but a fixed starting point means that
+ * lens gets structurally overrepresented across MANY different
+ * verticals' first issues, which is exactly the "historian keeps
+ * winning" pattern this was meant to prevent in the first place.
  */
 export function getNextLens(lastLensUsed: PulseLensType | null): PulseLensType {
-  if (!lastLensUsed) return ALL_LENSES[0];
+  if (!lastLensUsed) {
+    const randomIndex = Math.floor(Math.random() * ALL_LENSES.length);
+    return ALL_LENSES[randomIndex];
+  }
   const lastIndex = ALL_LENSES.indexOf(lastLensUsed);
   const nextIndex = (lastIndex + 1) % ALL_LENSES.length;
   return ALL_LENSES[nextIndex];
@@ -120,6 +132,8 @@ resources:
 - tools: array of 2 items (name, description)
 - events: array of 2 items (name, date, description)
 - reading: array of 2 items (title, author, description)
+
+VARIETY REQUIREMENT — read carefully before writing: each section above must be built on a DIFFERENT underlying subject. Do not let the same specific event, data release, policy, company, or development anchor more than one section. For example: if industry_news covers a particular government statistics release, market_data must NOT also be built around that same release — pick a different data angle entirely. If the hero story is about a specific company or project, case_study must profile a DIFFERENT company, not the same one from another angle. Before finalizing your response, mentally check each section's core subject against every other section's core subject — if two overlap, replace one with a genuinely different topic within ${vertical}.
 ${extraNote}
 ${pulseLensBlock}
 The pulse_lens field is mandatory and lens_used must be exactly the value specified above — do not substitute a different lens. A response without it, or with the wrong lens_used, is incomplete and incorrect.`;
@@ -133,3 +147,4 @@ export function buildRefreshPrompt(
   const refreshNote = `\nIMPORTANT: The previous issue had the headline: "${previousHeadline}". Generate completely fresh content with a different angle, different stories, and different data points.`;
   return buildMasterPrompt(params, lastLensUsed, refreshNote);
 }
+
