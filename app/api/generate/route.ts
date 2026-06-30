@@ -185,18 +185,46 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Vertical not found' }, { status: 404 });
     }
 
-    // Get previous headline to avoid repetition
-    const { data: previousItem } = await serviceSupabase
+    // Get recent issue history to build a subject-exclusion list, rather
+    // than just the single most recent headline. Pulling the last 5
+    // issues for this user+vertical and extracting subjects from
+    // multiple sections (not just hero) gives Claude a much stronger
+    // signal about what's already been covered recently - the old
+    // approach only compared the new hero against the previous hero,
+    // so a repeated industry_news item, case_study company, or opinion
+    // topic was invisible to the prompt entirely.
+    const { data: recentItems } = await serviceSupabase
       .from('feed_items')
       .select('content')
       .eq('user_id', userId)
       .eq('vertical_slug', verticalSlug)
       .order('generated_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
+      .limit(5);
 
+    const previousItem = recentItems?.[0];
     const previousHeadline = previousItem?.content?.hero?.headline;
     const lastLensUsed = previousItem?.content?.pulse_lens?.lens_used || null;
+
+    // Build the exclusion list: hero headlines, industry_news titles,
+    // case_study companies, and opinion titles from the last 5 issues.
+    // This is intentionally a flat list of plain-text subjects rather
+    // than anything Claude has to parse structurally - easiest for the
+    // model to actually use as a "don't repeat any of these" checklist.
+    const recentSubjects: string[] = [];
+    (recentItems || []).forEach((item: any) => {
+      const c = item?.content;
+      if (!c) return;
+      if (c.hero?.headline) recentSubjects.push(c.hero.headline);
+      (c.industry_news?.items || []).forEach((newsItem: any) => {
+        if (newsItem?.title) recentSubjects.push(newsItem.title);
+      });
+      if (c.case_study?.company) recentSubjects.push(`Case study: ${c.case_study.company}`);
+      if (c.opinion?.title) recentSubjects.push(c.opinion.title);
+    });
+    // De-duplicate and cap the list length so it doesn't grow unbounded
+    // or eat too much of the prompt's token budget on long-running users.
+    const uniqueRecentSubjects = Array.from(new Set(recentSubjects)).slice(0, 30);
+
     const countryData = getCountryByCode(profile?.country || 'US');
 
     const promptParams = {
@@ -209,7 +237,7 @@ export async function POST(req: NextRequest) {
     };
 
     const prompt = previousHeadline
-      ? buildRefreshPrompt(promptParams, previousHeadline, lastLensUsed)
+      ? buildRefreshPrompt(promptParams, previousHeadline, lastLensUsed, uniqueRecentSubjects)
       : buildMasterPrompt(promptParams, lastLensUsed);
 
     const { issue, tokensUsed, model, synthesisDebugTrace } = await generateMagazineIssue(
