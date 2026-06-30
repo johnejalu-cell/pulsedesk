@@ -239,11 +239,15 @@ export async function POST(req: NextRequest) {
       model_used: model,
     });
 
-    // Save to generation_log
+    // Save to generation_log (synthesis_debug persists the Pulse Synthesis
+    // debug trace so it can be inspected afterward via SQL even if
+    // DevTools/Network tab wasn't open when the generation happened -
+    // previously this was only visible in the live API response.)
     await serviceSupabase.from('generation_log').insert({
       user_id: userId,
       vertical_slug: verticalSlug,
       tokens_used: tokensUsed,
+      synthesis_debug: synthesisDebugTrace,
     });
 
     // Increment free issues counter for non-subscribers
@@ -278,4 +282,3 @@ export async function POST(req: NextRequest) {
       .eq('vertical_slug', verticalSlug);
   }
 }
-
