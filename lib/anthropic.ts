@@ -352,7 +352,7 @@ export async function generateMagazineIssue(
   const searchedSectionsPrompt = `${prompt}
 
 You must use web search to find real current information.
-Return ONLY a raw JSON object with exactly these 5 top-level keys: hero, pulse_lens, industry_news, regulatory, market_data.
+Return ONLY a raw JSON object with exactly these 6 top-level keys: hero, pulse_lens, industry_news, regulatory, market_data, recent_events.
 Do NOT wrap in markdown. Do NOT add any text before or after.
 Do NOT nest under an 'issue' key.
 Your response must start with { and end with }.`;
@@ -466,6 +466,19 @@ Start immediately with { and end with }. No other text.`;
   }
 
   const now = new Date().toISOString();
+
+  // recent_events comes from the SEARCHED call (real, web-search-grounded
+  // event data) but lives in the final issue under resources.events,
+  // matching the shape the frontend already renders - merging here keeps
+  // VerticalPage.tsx untouched. trainingContent.resources still supplies
+  // tools/reading; events is now sourced from search instead of training
+  // knowledge, since dated events/conferences need to be real, not
+  // plausible-sounding guesses from training data with a fixed cutoff.
+  const mergedResources = {
+    ...(trainingContent.resources || {}),
+    events: searchedContent.recent_events?.events || [],
+  };
+
   const issue: MagazineIssue = {
     vertical_slug: verticalSlug,
     vertical_name: verticalName,
@@ -482,7 +495,7 @@ Start immediately with { and end with }. No other text.`;
     case_study: trainingContent.case_study,
     leadership: trainingContent.leadership,
     opinion: trainingContent.opinion,
-    resources: trainingContent.resources,
+    resources: mergedResources,
   } as any;
 
   // Pulse Synthesis runs AFTER the issue's own content exists, since it
@@ -503,4 +516,3 @@ Start immediately with { and end with }. No other text.`;
 }
 
 export { anthropic };
-
