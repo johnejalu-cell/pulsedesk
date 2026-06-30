@@ -92,14 +92,19 @@ function buildPulseLensBlock(lastLensUsed: PulseLensType | null): string {
 export function buildMasterPrompt(
   params: ContentPromptParams,
   lastLensUsed: PulseLensType | null = null,
-  extraNote: string = ''
+  extraNote: string = '',
+  excludedSubjects: string[] = []
 ): string {
   const { vertical, country, countryCode, region, currentMonth } = params;
   const continent = getContinent(countryCode);
   const pulseLensBlock = buildPulseLensBlock(lastLensUsed);
 
+  const exclusionBlock = excludedSubjects.length > 0
+    ? `\nDO-NOT-REPEAT LIST — the subjects below were already covered in this subscriber's recent issues for this vertical. Do NOT write about any of these specific stories, companies, data releases, or topics again, even rephrased or from a different angle. Pick genuinely different subjects throughout this issue:\n${excludedSubjects.map(s => `- ${s}`).join('\n')}\n`
+    : '';
+
   return `Generate a professional weekly magazine issue for ${vertical} professionals based in ${country} (${countryCode})${region ? `, ${region}` : ''} for ${currentMonth}.
-For the searched sections (hero, industry_news, regulatory, market_data, pulse_lens): use web search to find REAL current information.
+For the searched sections (hero, industry_news, regulatory, market_data, recent_events, pulse_lens): use web search to find REAL current information.
 For the training sections (trends, best_practices, case_study, leadership, opinion, resources): use your professional knowledge.
 JSON structure required:
 hero:
@@ -126,15 +131,17 @@ regulatory:
   (mix of global, ${continent}, and ${country} regulatory updates)
 market_data:
 - chart_title, summary, data_points: array of 5 items each with: label, value
+recent_events:
+- events: array of 2 items, each with: name, date, description
+  These MUST be real, currently-scheduled events found via web search — real conference/summit/trade-show names with real, verifiable dates relevant to ${vertical} professionals in or near ${country}. Do NOT invent events or dates from general knowledge. If you cannot find 2 genuinely real upcoming events via search, return fewer items rather than fabricating one.
 opinion:
 - title, author, position, body (3 paragraphs)
 resources:
 - tools: array of 2 items (name, description)
-- events: array of 2 items (name, date, description)
 - reading: array of 2 items (title, author, description)
 
 VARIETY REQUIREMENT — read carefully before writing: each section above must be built on a DIFFERENT underlying subject. Do not let the same specific event, data release, policy, company, or development anchor more than one section. For example: if industry_news covers a particular government statistics release, market_data must NOT also be built around that same release — pick a different data angle entirely. If the hero story is about a specific company or project, case_study must profile a DIFFERENT company, not the same one from another angle. Before finalizing your response, mentally check each section's core subject against every other section's core subject — if two overlap, replace one with a genuinely different topic within ${vertical}.
-${extraNote}
+${exclusionBlock}${extraNote}
 ${pulseLensBlock}
 The pulse_lens field is mandatory and lens_used must be exactly the value specified above — do not substitute a different lens. A response without it, or with the wrong lens_used, is incomplete and incorrect.`;
 }
@@ -142,9 +149,9 @@ The pulse_lens field is mandatory and lens_used must be exactly the value specif
 export function buildRefreshPrompt(
   params: ContentPromptParams,
   previousHeadline: string,
-  lastLensUsed: PulseLensType | null = null
+  lastLensUsed: PulseLensType | null = null,
+  excludedSubjects: string[] = []
 ): string {
   const refreshNote = `\nIMPORTANT: The previous issue had the headline: "${previousHeadline}". Generate completely fresh content with a different angle, different stories, and different data points.`;
-  return buildMasterPrompt(params, lastLensUsed, refreshNote);
+  return buildMasterPrompt(params, lastLensUsed, refreshNote, excludedSubjects);
 }
-
