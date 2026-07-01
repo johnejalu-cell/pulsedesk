@@ -10,11 +10,11 @@ export interface ContentPromptParams {
 }
 // Map country codes to continents
 export function getContinent(countryCode: string): string {
-  const africaCodes = ['UG','KE','TZ','RW','ET','GH','NG','ZA','EG','MA','TN','DZ','CM','CI','SN','MZ','ZM','ZW','BW','NA','MG','AO','CD','SD','SO','ML','BF','NE','TD','MR','GN','SL','LR','TG','BJ','GA','CG','CF','ER','DJ','KM','SC','MU','CV','ST','GW','GM','GQ','BI','MW','LS','SZ'];
-  const europeCodes = ['GB','DE','FR','IT','ES','NL','BE','SE','NO','DK','FI','PL','CZ','AT','CH','PT','IE','GR','RO','HU','BG','HR','SK','SI','LT','LV','EE','LU','MT','CY','IS','AL','BA','ME','MK','RS','MD','UA','BY','GE','AM','AZ'];
-  const asiaCodes = ['CN','JP','IN','KR','ID','TH','VN','PH','MY','SG','BD','PK','LK','MM','KH','LA','NP','BT','MN','TW','HK','MO','AF','IR','IQ','SA','AE','QA','KW','BH','OM','YE','JO','LB','SY','IL','TR','KZ','UZ','TM','KG','TJ'];
-  const americasCodes = ['US','CA','MX','BR','AR','CO','CL','PE','VE','EC','BO','PY','UY','GY','SR','PA','CR','GT','HN','SV','NI','BZ','CU','JM','HT','DO','TT','BB','LC','VC','GD','AG','DM','KN','BS','TC','AI','VG','VI'];
-  const oceaniaCodes = ['AU','NZ','PG','FJ','SB','VU','WS','TO','KI','FM','MH','PW','NR','TV'];
+  const africaCodes = ['DZ','AO','BJ','BW','BF','CM','CD','CI','EG','ET','GH','KE','LY','MG','MW','ML','MA','MZ','NA','NG','RW','SN','ZA','SS','SD','TZ','TN','UG','ZM','ZW'];
+  const europeCodes = ['AT','BE','CZ','DK','FI','FR','DE','GR','HU','IE','IT','NL','NO','PL','PT','ES','SE','GB'];
+  const asiaCodes = ['AF','BH','BD','BN','KH','CN','HK','IN','ID','IQ','JP','JO','KZ','KW','LB','MY','MN','MM','NP','OM','PK','PH','QA','SA','SG','KR','LK','TH','AE','VN'];
+  const americasCodes = ['AR','BB','BO','BR','CA','CL','CO','CR','DO','EC','GT','JM','MX','PA','PE','TT','US','UY'];
+  const oceaniaCodes = ['AU','FJ','PG','NZ'];
   if (africaCodes.includes(countryCode)) return 'Africa';
   if (europeCodes.includes(countryCode)) return 'Europe';
   if (asiaCodes.includes(countryCode)) return 'Asia';
