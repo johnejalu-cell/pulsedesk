@@ -3,11 +3,8 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { COUNTRIES } from '@/lib/utils';
 
-const WATCHLIST_LIMITS: Record<string, number> = {
-  starter: 1,
-  pro: 3,
-  corporate: 10,
-};
+// All paid plans get 10 watchlist terms
+const WATCHLIST_LIMIT = 10;
 
 export default function SettingsPage() {
   const [profile, setProfile] = useState<any>(null);
@@ -95,8 +92,7 @@ export default function SettingsPage() {
   function addTerm() {
     const trimmed = newTerm.trim();
     if (!trimmed || watchlist.includes(trimmed)) return;
-    const limit = WATCHLIST_LIMITS[subscription?.tier] || 0;
-    if (watchlist.length >= limit) return;
+    if (watchlist.length >= WATCHLIST_LIMIT) return;
     const updated = [...watchlist, trimmed];
     setWatchlist(updated);
     setNewTerm('');
@@ -109,8 +105,7 @@ export default function SettingsPage() {
     saveWatchlist(updated);
   }
 
-  const watchlistLimit = WATCHLIST_LIMITS[subscription?.tier] || 0;
-  const canAddTerms = !!subscription?.tier && watchlist.length < watchlistLimit;
+  const canAddTerms = !!subscription?.tier && watchlist.length < WATCHLIST_LIMIT;
 
   if (loading) return <div className="p-8 text-slate-400">Loading...</div>;
 
@@ -181,7 +176,7 @@ export default function SettingsPage() {
           {savingWatchlist && <span className="text-xs text-slate-400">Saving...</span>}
         </div>
         <p className="text-xs text-slate-500 mb-4">
-          Track people, companies, or topics. We'll email you their latest news weekly.
+          Track people, companies, or topics. We&apos;ll email you their latest news weekly.
         </p>
 
         {!subscription?.tier ? (
@@ -195,9 +190,9 @@ export default function SettingsPage() {
           <>
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs text-slate-400">
-                {watchlist.length} / {watchlistLimit} term{watchlistLimit !== 1 ? 's' : ''} used
+                {watchlist.length} / {WATCHLIST_LIMIT} terms used
               </span>
-              <span className="text-xs text-slate-400 capitalize">{subscription.tier} plan</span>
+              <span className="text-xs text-slate-400 capitalize">{subscription.tier} Plan</span>
             </div>
 
             {/* Existing terms */}
@@ -236,9 +231,9 @@ export default function SettingsPage() {
                   Add
                 </button>
               </div>
-            ) : watchlist.length >= watchlistLimit ? (
+            ) : watchlist.length >= WATCHLIST_LIMIT ? (
               <div className="bg-slate-50 rounded-xl p-3 text-center">
-                <p className="text-xs text-slate-500">Limit reached. <a href="/pricing" className="text-blue-600 hover:underline">Upgrade</a> to track more.</p>
+                <p className="text-xs text-slate-500">You&apos;ve reached the 10-term limit.</p>
               </div>
             ) : null}
           </>
@@ -278,3 +273,4 @@ export default function SettingsPage() {
     </div>
   );
 }
+
