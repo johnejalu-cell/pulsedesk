@@ -100,7 +100,7 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
   }, [slug]);
 
   async function generate() {
-    if (!hasSubscription && (freeIssuesUsed ?? 0) >= 3) {
+    if (!hasSubscription && (freeIssuesUsed ?? 0) >= 1) {
       setShowPaywall(true);
       return;
     }
@@ -146,7 +146,7 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
           <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-3xl">🔒</span>
           </div>
-          <h2 className="text-xl font-bold text-slate-900 mb-2">You've used your 3 free issues</h2>
+          <h2 className="text-xl font-bold text-slate-900 mb-2">You&apos;ve used your free issue</h2>
           <p className="text-slate-500 text-sm mb-6">
             Subscribe to continue generating fresh professional intelligence across all your verticals.
           </p>
@@ -193,8 +193,8 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
             {generating ? 'Generating…' : issue ? 'Refresh' : 'Generate'}
           </button>
           {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
-          {!hasSubscription && freeIssuesUsed !== null && freeIssuesUsed < 3 && (
-            <p className="text-xs text-slate-400 mt-1">{3 - freeIssuesUsed} free {3 - freeIssuesUsed === 1 ? 'issue' : 'issues'} remaining</p>
+          {!hasSubscription && freeIssuesUsed !== null && freeIssuesUsed < 1 && (
+            <p className="text-xs text-slate-400 mt-1">1 free issue remaining</p>
           )}
         </div>
       </div>
@@ -242,7 +242,6 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
           <div className="flex gap-1.5 overflow-x-auto px-4 pb-1 scrollbar-none">
             {[
               ...(issue.pulse_lens ? [{ key: 'pulse_lens', label: 'Pulse Lens' }] : []),
-              ...(issue.pulse_synthesis ? [{ key: 'pulse_synthesis', label: 'Pulse Synthesis' }] : []),
               { key: 'industry_news', label: 'News' },
               { key: 'trends', label: 'Trends' },
               { key: 'best_practices', label: 'Best Practices' },
@@ -252,6 +251,7 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
               { key: 'market_data', label: 'Market Data' },
               { key: 'opinion', label: 'Opinion' },
               { key: 'resources', label: 'Resources' },
+              ...(issue.pulse_synthesis ? [{ key: 'pulse_synthesis', label: 'Pulse Synthesis' }] : []),
             ].map(s => (
               <button
                 key={s.key}
@@ -381,7 +381,7 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
                 )}
                 {issue.trends?.quote && (
                   <blockquote className="border-l-4 border-blue-400 pl-4 mt-4">
-                    <p className="text-slate-600 text-sm italic">"{issue.trends.quote.text}"</p>
+                    <p className="text-slate-600 text-sm italic">&ldquo;{issue.trends.quote.text}&rdquo;</p>
                     {issue.trends.quote.attribution && (
                       <p className="text-slate-400 text-xs mt-1">— {issue.trends.quote.attribution}</p>
                     )}
@@ -551,9 +551,10 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
         <div className="mx-4 bg-white border border-dashed border-slate-300 rounded-2xl p-12 text-center">
           <div className="text-4xl mb-4">📰</div>
           <h2 className="text-base font-semibold text-slate-700 mb-2">No issue yet</h2>
-          <p className="text-slate-400 text-sm">Tap "Generate" to create your first {vertical?.name} magazine issue.</p>
+          <p className="text-slate-400 text-sm">Tap &ldquo;Generate&rdquo; to create your first {vertical?.name} magazine issue.</p>
         </div>
       )}
     </div>
   );
 }
+
