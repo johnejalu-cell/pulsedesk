@@ -95,7 +95,7 @@ export default function HomePage() {
         }
         .pd-proof-label { font-size: 13px; color: var(--ink-muted); margin-top: 4px; }
 
-        .pd-preview { background: var(--ink); padding: 80px 5vw; }
+        .pd-preview { background: #0f1e5c; padding: 80px 5vw; }
         .pd-preview-inner { max-width: 1100px; margin: 0 auto; }
         .pd-section-eyebrow {
           font-family: 'JetBrains Mono', monospace;
@@ -107,8 +107,8 @@ export default function HomePage() {
           font-size: clamp(28px, 3.5vw, 44px); font-weight: 700;
           color: #fff; margin-bottom: 12px; line-height: 1.2;
         }
-        .pd-preview .pd-section-sub { color: #9a9a9a; font-size: 16px; margin-bottom: 48px; max-width: 560px; }
-        .pd-issue-card { background: #1a1a1a; border-radius: 16px; overflow: hidden; border: 1px solid #2a2a2a; }
+        .pd-preview .pd-section-sub { color: #93b4e8; font-size: 16px; margin-bottom: 48px; max-width: 560px; }
+        .pd-issue-card { background: #162454; border-radius: 16px; overflow: hidden; border: 1px solid #1e3070; }
         .pd-issue-header { background: linear-gradient(135deg, var(--blue) 0%, #0d2d8a 100%); padding: 28px 32px; }
         .pd-issue-tag {
           display: inline-block; background: rgba(255,255,255,0.15);
@@ -128,15 +128,15 @@ export default function HomePage() {
         }
         .pd-issue-section-item {
           padding: 22px 28px;
-          border-right: 1px solid #2a2a2a; border-bottom: 1px solid #2a2a2a;
+          border-right: 1px solid #1e3070; border-bottom: 1px solid #1e3070;
         }
         .pd-section-icon {
           width: 32px; height: 32px; border-radius: 8px;
           display: flex; align-items: center; justify-content: center;
           margin-bottom: 12px; font-size: 15px;
         }
-        .pd-section-name { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 4px; }
-        .pd-section-desc { font-size: 12px; color: #6b6b6b; line-height: 1.5; }
+        .pd-section-name { font-size: 13px; font-weight: 600; color: #e8eefb; margin-bottom: 4px; }
+        .pd-section-desc { font-size: 12px; color: #93b4e8; line-height: 1.5; }
 
         .pd-features { padding: 96px 5vw; max-width: 1100px; margin: 0 auto; }
         .pd-features .pd-eyebrow { color: var(--blue); }
@@ -156,6 +156,7 @@ export default function HomePage() {
         }
         .pd-feature-card.lens::before { background: linear-gradient(90deg, #7c3aed, #1a4fd6); }
         .pd-feature-card.synthesis::before { background: linear-gradient(90deg, #e67e22, #f59e0b); }
+        .pd-feature-card.clippings::before { background: linear-gradient(90deg, #059669, #10b981); }
         .pd-feature-badge {
           display: inline-flex; align-items: center; gap: 6px;
           font-family: 'JetBrains Mono', monospace;
@@ -177,6 +178,8 @@ export default function HomePage() {
         }
         .pd-feature-card.lens .pd-feature-example { border-color: #7c3aed; }
         .pd-feature-card.synthesis .pd-feature-example { border-color: var(--amber); }
+        .pd-feature-card.clippings .pd-feature-example { border-color: #059669; }
+        .pd-feature-badge.clippings { background: #ecfdf5; color: #059669; }
         .pd-example-label {
           font-family: 'JetBrains Mono', monospace;
           font-size: 10px; font-weight: 500; letter-spacing: 0.1em;
@@ -215,7 +218,7 @@ export default function HomePage() {
         .pd-step h4 { font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
         .pd-step p { font-size: 14px; color: var(--ink-muted); line-height: 1.65; }
 
-        .pd-pricing { background: var(--ink); padding: 96px 5vw; }
+        .pd-pricing { background: #0f1e5c; padding: 96px 5vw; }
         .pd-pricing-inner { max-width: 1100px; margin: 0 auto; }
         .pd-pricing-inner .pd-section-eyebrow { color: var(--amber); margin-bottom: 16px; }
         .pd-pricing-inner h2 {
@@ -223,14 +226,14 @@ export default function HomePage() {
           font-size: clamp(28px, 3.5vw, 44px); font-weight: 700;
           color: #fff; margin-bottom: 12px;
         }
-        .pd-pricing-inner .pd-section-sub { color: #9a9a9a; font-size: 16px; margin-bottom: 56px; max-width: 480px; }
+        .pd-pricing-inner .pd-section-sub { color: #93b4e8; font-size: 16px; margin-bottom: 56px; max-width: 480px; }
         .pd-pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
         .pd-pricing-card {
-          background: #1a1a1a; border: 1.5px solid #2a2a2a;
+          background: #162454; border: 1.5px solid #1e3070;
           border-radius: 16px; padding: 32px; position: relative; transition: border-color 0.2s;
         }
         .pd-pricing-card:hover { border-color: #4a4a4a; }
-        .pd-pricing-card.featured { border-color: var(--blue); background: #111d3a; }
+        .pd-pricing-card.featured { border-color: #60a5fa; background: #1a3a8f; }
         .pd-featured-badge {
           position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
           background: var(--blue); color: #fff;
@@ -239,7 +242,7 @@ export default function HomePage() {
           white-space: nowrap; font-family: 'JetBrains Mono', monospace;
         }
         .pd-plan-name {
-          font-size: 13px; font-weight: 600; color: #9a9a9a;
+          font-size: 13px; font-weight: 600; color: #93b4e8;
           letter-spacing: 0.06em; text-transform: uppercase;
           margin-bottom: 16px; font-family: 'JetBrains Mono', monospace;
         }
@@ -251,15 +254,15 @@ export default function HomePage() {
           font-size: 22px; vertical-align: super;
           font-family: 'Inter', sans-serif; font-weight: 400;
         }
-        .pd-plan-period { font-size: 13px; color: #6b6b6b; margin-bottom: 24px; }
+        .pd-plan-period { font-size: 13px; color: #93b4e8; margin-bottom: 24px; }
         .pd-plan-issues {
           font-size: 14px; color: #9a9a9a;
-          margin-bottom: 28px; padding-bottom: 24px; border-bottom: 1px solid #2a2a2a;
+          margin-bottom: 28px; padding-bottom: 24px; border-bottom: 1px solid #1e3070;
         }
         .pd-plan-issues strong { color: #fff; }
         .pd-plan-features { list-style: none; margin-bottom: 32px; }
         .pd-plan-features li {
-          font-size: 14px; color: #9a9a9a; padding: 6px 0;
+          font-size: 14px; color: #93b4e8; padding: 6px 0;
           display: flex; gap: 10px; align-items: flex-start;
         }
         .pd-plan-features li::before {
@@ -273,8 +276,8 @@ export default function HomePage() {
         }
         .pd-plan-cta.primary { background: var(--blue); color: #fff; }
         .pd-plan-cta.primary:hover { background: #1440b8; }
-        .pd-plan-cta.secondary { background: transparent; color: #9a9a9a; border: 1.5px solid #2a2a2a; }
-        .pd-plan-cta.secondary:hover { border-color: #4a4a4a; color: #fff; }
+        .pd-plan-cta.secondary { background: transparent; color: #93b4e8; border: 1.5px solid #1e3070; }
+        .pd-plan-cta.secondary:hover { border-color: #60a5fa; color: #fff; }
 
         .pd-faq { padding: 96px 5vw; max-width: 780px; margin: 0 auto; }
         .pd-faq h2 {
@@ -301,7 +304,7 @@ export default function HomePage() {
         }
 
         .pd-footer {
-          background: var(--ink); padding: 40px 5vw;
+          background: #0f1e5c; padding: 40px 5vw;
           display: flex; align-items: center; justify-content: space-between;
           flex-wrap: wrap; gap: 16px;
         }
@@ -309,9 +312,9 @@ export default function HomePage() {
           font-family: 'Inter', sans-serif; font-weight: 600;
           font-size: 14px; color: #fff; display: flex; align-items: center; gap: 8px;
         }
-        .pd-footer-copy { font-size: 13px; color: #6b6b6b; }
+        .pd-footer-copy { font-size: 13px; color: #93b4e8; }
         .pd-footer-links { display: flex; gap: 20px; }
-        .pd-footer-links a { font-size: 13px; color: #6b6b6b; text-decoration: none; transition: color 0.15s; }
+        .pd-footer-links a { font-size: 13px; color: #93b4e8; text-decoration: none; transition: color 0.15s; }
         .pd-footer-links a:hover { color: #fff; }
 
         @media (max-width: 640px) {
@@ -414,8 +417,8 @@ export default function HomePage() {
       {/* PULSE FEATURES */}
       <section className="pd-features" id="features">
         <p className="pd-eyebrow">Signature features</p>
-        <h2>Two features you won&apos;t find anywhere else.</h2>
-        <p className="pd-section-sub">Built into every issue — not add-ons, not upgrades.</p>
+        <h2>Three features you won&apos;t find anywhere else.</h2>
+        <p className="pd-section-sub">Built into every subscription — not add-ons, not upgrades.</p>
 
         <div className="pd-feature-card lens">
           <div className="pd-feature-badge lens">✦ Pulse Lens</div>
@@ -438,6 +441,18 @@ export default function HomePage() {
           <div className="pd-feature-example">
             <div className="pd-example-label">Pulse Synthesis — Marketing &amp; Growth · Indonesia</div>
             <div className="pd-example-text">&ldquo;Pairing: Indonesia&apos;s new data localisation rules requiring consumer data to be stored domestically + a global case study on how Duolingo rebuilt retention using push notification psychology. Proposal: Indonesian consumer brands have a narrow window to build first-party data infrastructure before compliance costs rise — and the retention mechanics that work in low-bandwidth, high-mobile environments are already proven. The brands that move now own the relationship; the ones that wait will pay to rent it.&rdquo;</div>
+          </div>
+        </div>
+
+        <div className="pd-feature-card clippings">
+          <div className="pd-feature-badge clippings">◉ Press Clippings Watchlist</div>
+          <h3>Your people, companies, and topics. Tracked for you.</h3>
+          <p>
+            Add up to 10 people, companies, competitors, or topics to your personal watchlist. Every Monday morning, Pulse Department searches the web for the latest news on each one and delivers a curated digest straight to your inbox — so you never miss a development that matters to you, without having to search for it yourself.
+          </p>
+          <div className="pd-feature-example">
+            <div className="pd-example-label">Sample watchlist digest — delivered Monday 7AM</div>
+            <div className="pd-example-text">&ldquo;Watching: <strong>Safaricom M-Pesa expansion</strong> — 3 new developments this week, including a reported partnership with a major East African retail chain and a new merchant API launch. Also watching: <strong>AfCFTA implementation</strong> — two member states ratified new rules of origin protocols; dispute resolution timeline updated.&rdquo;</div>
           </div>
         </div>
       </section>
@@ -509,6 +524,7 @@ export default function HomePage() {
                 <li>All 10 sections per issue</li>
                 <li>Pulse Lens included</li>
                 <li>Pulse Synthesis included</li>
+                <li>Press Clippings Watchlist (10 terms)</li>
                 <li>12 professional verticals</li>
                 <li>100+ countries</li>
                 <li>Content history</li>
@@ -525,6 +541,7 @@ export default function HomePage() {
               <ul className="pd-plan-features">
                 <li>Everything in Starter</li>
                 <li>3× the generation allowance</li>
+                <li>Press Clippings Watchlist (10 terms)</li>
                 <li>Priority generation</li>
                 <li>Email delivery of issues</li>
                 <li>Multiple verticals</li>
@@ -539,6 +556,7 @@ export default function HomePage() {
               <div className="pd-plan-issues"><strong>40 issues</strong> per month across your verticals</div>
               <ul className="pd-plan-features">
                 <li>Everything in Pro</li>
+                <li>Press Clippings Watchlist (10 terms)</li>
                 <li>Team sharing</li>
                 <li>All verticals, unlimited switching</li>
                 <li>Dedicated support</li>
@@ -562,6 +580,10 @@ export default function HomePage() {
           {
             q: 'What are Pulse Lens and Pulse Synthesis?',
             a: 'Pulse Lens reframes your issue\'s lead story through one of four analytical perspectives — The Historian, The Outsider, The Constraint, The Apprentice — rotating each issue so you always get a fresh angle. Pulse Synthesis finds two structurally unrelated stories in your issue and shows what a novel business or policy concept they produce together. Both are included in every plan at no extra cost.',
+          },
+          {
+            q: 'What is the Press Clippings Watchlist?',
+            a: 'Add up to 10 people, companies, competitors, or topics you want to track. Every Monday morning, Pulse Department searches the web for the latest news on each one and emails you a personalised digest — no setup, no alerts to configure, no searching required. It works across any topic in any country with web coverage.',
           },
           {
             q: 'Will I see the same content repeated across issues?',
@@ -612,3 +634,4 @@ export default function HomePage() {
     </>
   );
 }
+
