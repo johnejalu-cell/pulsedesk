@@ -369,7 +369,11 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
               <div>
                 <h3 className="text-base font-bold text-slate-900 mb-1">{issue.trends?.title}</h3>
                 <p className="text-blue-600 text-xs mb-3">{issue.trends?.subtitle}</p>
-                <p className="text-sm text-slate-700 leading-relaxed mb-4">{issue.trends?.content}</p>
+                <p className="text-sm text-slate-700 leading-relaxed mb-4">
+                  {Array.isArray(issue.trends?.content)
+                    ? issue.trends.content.join('\n\n')
+                    : issue.trends?.content}
+                </p>
                 {issue.trends?.bullets && (
                   <ul className="space-y-2 bg-slate-50 rounded-xl p-3">
                     {issue.trends.bullets.map((b: string, i: number) => (
@@ -395,10 +399,19 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
                 <p className="text-sm text-slate-700 leading-relaxed mb-4">{issue.best_practices?.content}</p>
                 {issue.best_practices?.steps && (
                   <div className="space-y-2">
-                    {issue.best_practices.steps.map((step: string, i: number) => (
+                    {issue.best_practices.steps.map((step: any, i: number) => (
                       <div key={i} className="flex gap-3 bg-slate-50 rounded-xl p-3">
                         <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">{i+1}</span>
-                        <p className="text-sm text-slate-700">{step}</p>
+                        <div className="flex-1">
+                          {typeof step === 'string' ? (
+                            <p className="text-sm text-slate-700">{step}</p>
+                          ) : (
+                            <>
+                              <p className="text-sm font-semibold text-slate-800 mb-1">{step.step || step.title || ''}</p>
+                              {step.detail && <p className="text-sm text-slate-600">{step.detail}</p>}
+                            </>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -445,7 +458,11 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
               <div>
                 <h3 className="text-base font-bold text-slate-900 mb-2">{issue.leadership?.title}</h3>
                 <p className="text-blue-600 text-xs mb-3">{issue.leadership?.subtitle}</p>
-                <p className="text-sm text-slate-700 leading-relaxed mb-4">{issue.leadership?.content}</p>
+                <p className="text-sm text-slate-700 leading-relaxed mb-4">
+                  {Array.isArray(issue.leadership?.content)
+                    ? issue.leadership.content.join('\n\n')
+                    : issue.leadership?.content}
+                </p>
                 {issue.leadership?.bullets && (
                   <ul className="space-y-2 bg-slate-50 rounded-xl p-3">
                     {issue.leadership.bullets.map((b: string, i: number) => (
@@ -496,7 +513,11 @@ export default function VerticalPage({ params }: { params: { slug: string } }) {
                   </div>
                   <p className="text-xs text-slate-500">By our expert</p>
                 </div>
-                <p className="text-sm text-slate-700 leading-relaxed">{issue.opinion?.body}</p>
+                <p className="text-sm text-slate-700 leading-relaxed">
+                  {Array.isArray(issue.opinion?.body)
+                    ? issue.opinion.body.join('\n\n')
+                    : issue.opinion?.body}
+                </p>
               </div>
             )}
             {activeSection === 'resources' && (
